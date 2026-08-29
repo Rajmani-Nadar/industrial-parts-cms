@@ -72,10 +72,10 @@ export function Navbar() {
     <motion.nav
       ref={navRef}
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-md",
         isScrolled
-          ? "bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-100"
-          : "bg-transparent"
+          ? "bg-white/95 shadow-lg border-b border-gray-100"
+          : "bg-black/20"
       )}
       initial="hidden"
       animate="visible"
@@ -93,8 +93,11 @@ export function Navbar() {
               style={{ backgroundColor: COLORS.navy[500] }}
             />
             <span
-              className="text-xl font-bold hidden sm:inline"
-              style={{ color: COLORS.navy[500] }}
+              className="text-xl font-bold hidden sm:inline transition-colors duration-300"
+              style={{
+                color: isScrolled ? COLORS.navy[500] : "white",
+                textShadow: isScrolled ? "none" : "0 2px 4px rgba(0,0,0,0.3)",
+              }}
             >
               Industrial
             </span>
@@ -107,11 +110,15 @@ export function Navbar() {
                 <button
                   className={cn(
                     "px-3 py-2 rounded-md text-sm font-medium transition-all",
-                    "hover:bg-gray-100",
                     isScrolled
-                      ? "text-gray-900"
-                      : "text-gray-100 hover:text-white"
+                      ? "text-gray-900 hover:bg-gray-100"
+                      : "text-white hover:bg-white/10"
                   )}
+                  style={
+                    !isScrolled
+                      ? { textShadow: "0 2px 4px rgba(0,0,0,0.3)" }
+                      : {}
+                  }
                   onMouseEnter={() => {
                     if (
                       item.label === "Products" ||
