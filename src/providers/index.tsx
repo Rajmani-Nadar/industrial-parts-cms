@@ -14,7 +14,9 @@ interface ProvidersProps {
 export function Providers({ children }: ProvidersProps) {
   return (
     <LazyMotion features={domAnimation}>
-      <AnimatePresence mode="wait">{children}</AnimatePresence>
+      <AnimatePresence mode="wait">
+        <div key="page-shell">{children}</div>
+      </AnimatePresence>
     </LazyMotion>
   );
 }
