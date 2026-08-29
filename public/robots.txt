@@ -1,0 +1,34 @@
+# Robots.txt for Industrial B2B Website
+# Controls search engine crawler access
+
+User-agent: *
+Allow: /
+Allow: /products
+Allow: /solutions
+Allow: /resources
+Allow: /about
+Allow: /contact
+
+Disallow: /admin/
+Disallow: /api/
+Disallow: /internal/
+Disallow: /*.json$
+Disallow: /user/
+Disallow: /account/
+Disallow: /search?
+Disallow: /?page=
+
+# Specific crawlers
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Slurp
+Disallow: /
+
+# Sitemap location
+Sitemap: https://industrial.com/sitemap.xml

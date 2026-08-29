@@ -1,0 +1,73 @@
+{
+  "name": "Industrial - Enterprise Automation Solutions",
+  "short_name": "Industrial",
+  "description": "Next-generation industrial automation and control solutions for enterprise manufacturing.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#003366",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/favicon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon-maskable-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "screenshots": [
+    {
+      "src": "/screenshot-1.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/screenshot-2.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Products",
+      "short_name": "Products",
+      "description": "View our industrial automation products",
+      "url": "/products",
+      "icons": [
+        {
+          "src": "/icon-products.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Documentation",
+      "short_name": "Docs",
+      "description": "Access technical documentation",
+      "url": "/resources/docs",
+      "icons": [
+        {
+          "src": "/icon-docs.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false
+}
