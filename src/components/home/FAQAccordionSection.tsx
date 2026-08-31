@@ -158,7 +158,7 @@ export function FAQAccordionSection() {
           viewport={{ once: true }}
         >
           <p className="text-gray-700 mb-4">
-            Didn't find your answer? Our support team is ready to help.
+            Didn&apos;t find your answer? Our support team is ready to help.
           </p>
           <motion.button
             className="px-6 py-2 rounded-lg font-semibold text-white"

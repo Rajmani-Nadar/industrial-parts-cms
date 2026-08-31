@@ -3,10 +3,12 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ChevronDown } from "lucide-react";
+import * as Icons from "lucide-react";
+import { Menu, X, ChevronDown, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MAIN_NAV_ITEMS, MEGA_MENU } from "@/constants";
 import { COLORS } from "@/constants";
+import { PRODUCTS } from "@/data/products";
 
 /**
  * Navbar Component
@@ -68,6 +70,167 @@ export function Navbar() {
     exit: { opacity: 0, height: 0, transition: { duration: 0.3 } },
   };
 
+  const getIcon = (iconName: string) => {
+    const Icon = Icons[iconName as keyof typeof Icons] as
+      | ((props: { className?: string }) => React.ReactElement)
+      | undefined;
+    return Icon ? <Icon className="h-5 w-5" /> : null;
+  };
+
+  const renderMegaMenu = (menuKey: string) => {
+    if (!MEGA_MENU[menuKey as keyof typeof MEGA_MENU]) return null;
+
+    const menu = MEGA_MENU[menuKey as keyof typeof MEGA_MENU];
+
+    if (menuKey === "products") {
+      return (
+        <motion.div
+          className="absolute left-1/2 mt-3 w-[720px] -translate-x-1/2 rounded-2xl border border-slate-200 bg-white/85 p-5 shadow-2xl backdrop-blur-xl"
+          variants={megaMenuVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          onMouseEnter={() => setActiveMegaMenu(menuKey)}
+          onMouseLeave={() => setActiveMegaMenu(null)}
+        >
+          <div className="grid gap-6 md:grid-cols-[1.4fr_1fr]">
+            <div className="space-y-4">
+              <div className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                Product Categories
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {menu.items.map((item) => {
+                  const IconComponent = item.icon
+                    ? (Icons[item.icon as keyof typeof Icons] as
+                        | ((props: { className?: string }) => React.ReactElement)
+                        | undefined)
+                    : undefined;
+
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="group rounded-xl border border-slate-200 bg-slate-50/60 p-3 transition-colors hover:border-orange-200 hover:bg-white"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-100 text-orange-600">
+                          {IconComponent ? <IconComponent className="h-5 w-5" /> : null}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-sm font-semibold text-slate-800">{item.label}</span>
+                            <ArrowRight className="h-4 w-4 text-slate-400 transition-transform group-hover:translate-x-1 group-hover:text-orange-500" />
+                          </div>
+                          <p className="mt-1 text-xs leading-5 text-slate-600">{item.description}</p>
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
+              <div className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                Featured Products
+              </div>
+              <div className="space-y-3">
+                {PRODUCTS.slice(0, 3).map((product) => (
+                  <Link
+                    key={product.id}
+                    href={`/products/${product.slug}`}
+                    className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-2 transition-colors hover:border-orange-200 hover:bg-orange-50/40"
+                  >
+                    <div className="h-16 w-16 overflow-hidden rounded-lg bg-slate-100">
+                      <img
+                        src={product.images[0]?.url ?? "/products/placeholder.jpg"}
+                        alt={product.name}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <span className="inline-flex max-w-full truncate rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-orange-700">
+                        {product.compatibleEngines[0] ?? product.brand}
+                      </span>
+                      <div className="mt-1 text-sm font-semibold text-slate-800">{product.name}</div>
+                    </div>
+                    <span className="text-xs font-medium text-sky-700">View</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      );
+    }
+
+    if (menuKey === "solutions") {
+      return (
+        <motion.div
+          className="absolute left-1/2 mt-3 w-[440px] -translate-x-1/2 rounded-2xl border border-slate-200 bg-white/85 p-5 shadow-2xl backdrop-blur-xl"
+          variants={megaMenuVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          onMouseEnter={() => setActiveMegaMenu(menuKey)}
+          onMouseLeave={() => setActiveMegaMenu(null)}
+        >
+          <div className="grid gap-3 sm:grid-cols-2">
+            {menu.items.map((item) => {
+              const IconComponent = item.icon
+                ? (Icons[item.icon as keyof typeof Icons] as
+                    | ((props: { className?: string }) => React.ReactElement)
+                    | undefined)
+                : undefined;
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 transition-colors hover:border-orange-200 hover:bg-white"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-sky-100 text-sky-700">
+                      {IconComponent ? <IconComponent className="h-5 w-5" /> : null}
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold text-slate-800">{item.label}</div>
+                      <div className="text-xs text-slate-600">{item.description}</div>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </motion.div>
+      );
+    }
+
+    return (
+      <motion.div
+        className="absolute left-1/2 mt-3 w-[420px] -translate-x-1/2 rounded-2xl border border-slate-200 bg-white/85 p-5 shadow-2xl backdrop-blur-xl"
+        variants={megaMenuVariants}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        onMouseEnter={() => setActiveMegaMenu(menuKey)}
+        onMouseLeave={() => setActiveMegaMenu(null)}
+      >
+        <div className="grid gap-2">
+          {menu.items.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 hover:text-orange-600"
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      </motion.div>
+    );
+  };
+
   return (
     <motion.nav
       ref={navRef}
@@ -122,7 +285,8 @@ export function Navbar() {
                   onMouseEnter={() => {
                     if (
                       item.label === "Products" ||
-                      item.label === "Solutions"
+                      item.label === "Solutions" ||
+                      item.label === "Resources"
                     ) {
                       setActiveMegaMenu(item.label.toLowerCase());
                     }
@@ -132,58 +296,19 @@ export function Navbar() {
                   <span className="flex items-center space-x-1">
                     <span>{item.label}</span>
                     {(item.label === "Products" ||
-                      item.label === "Solutions") && (
+                      item.label === "Solutions" ||
+                      item.label === "Resources") && (
                       <ChevronDown className="w-4 h-4" />
                     )}
                   </span>
                 </button>
 
-                {/* Mega Menu Placeholder */}
-                {(item.label === "Products" || item.label === "Solutions") && (
+                {(item.label === "Products" ||
+                  item.label === "Solutions" ||
+                  item.label === "Resources") && (
                   <AnimatePresence>
-                    {activeMegaMenu ===
-                      item.label.toLowerCase() && (
-                      <motion.div
-                        className="absolute left-0 mt-0 w-96 bg-white rounded-lg shadow-2xl p-6 border border-gray-200"
-                        variants={megaMenuVariants}
-                        initial="hidden"
-                        animate="visible"
-                        exit="exit"
-                        onMouseEnter={() =>
-                          setActiveMegaMenu(item.label.toLowerCase())
-                        }
-                        onMouseLeave={() => setActiveMegaMenu(null)}
-                      >
-                        <div className="space-y-4">
-                          <div>
-                            <h3
-                              className="font-bold text-sm mb-3"
-                              style={{ color: COLORS.navy[500] }}
-                            >
-                              Featured
-                            </h3>
-                            <p className="text-xs text-gray-600">
-                              Mega menu content placeholder for{" "}
-                              {item.label}
-                            </p>
-                          </div>
-
-                          <div className="space-y-2">
-                            {["Option 1", "Option 2", "Option 3"].map(
-                              (option) => (
-                                <Link
-                                  key={option}
-                                  href="#"
-                                  className="block text-sm text-gray-700 hover:text-orange-500 transition-colors"
-                                >
-                                  {option}
-                                </Link>
-                              )
-                            )}
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
+                    {activeMegaMenu === item.label.toLowerCase() &&
+                      renderMegaMenu(item.label.toLowerCase())}
                   </AnimatePresence>
                 )}
               </div>

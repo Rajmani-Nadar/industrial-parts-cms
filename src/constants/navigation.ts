@@ -165,10 +165,10 @@ export const FOOTER_LINKS = {
   products: {
     title: "Products",
     links: [
-      { label: "Automation", href: "/products/automation" },
-      { label: "Control Systems", href: "/products/control" },
-      { label: "Monitoring", href: "/products/monitoring" },
-      { label: "Safety", href: "/products/safety" },
+      { label: "Engine Braking Systems", href: "/products?category=Engine%20Braking%20Systems" },
+      { label: "Bleeder Brakes", href: "/products?category=Bleeder%20Brakes" },
+      { label: "Generator Accessories", href: "/products?category=Generator%20Accessories" },
+      { label: "ATS Controllers", href: "/products?category=ATS%20Controllers" },
     ],
   },
   resources: {

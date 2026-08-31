@@ -66,7 +66,7 @@ export function generatePageMetadata(props: PageMetadataProps): Metadata {
  */
 export function generateStructuredData(
   type: "Organization" | "BreadcrumbList" | "FAQPage" | "Product",
-  data: Record<string, any>
+  data: Record<string, unknown>
 ) {
   return {
     "@context": "https://schema.org",

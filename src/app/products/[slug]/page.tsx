@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowDownToLine, FileText, MessageCircle, Phone, ShieldCheck, Star, Truck, Wrench } from "lucide-react";
-import { PRODUCTS, PRODUCT_MAP, APPLICATION_CARDS } from "@/data/products";
+import { APPLICATION_CARDS, PRODUCTS } from "@/data/products";
 import { Breadcrumbs } from "@/components/products/Breadcrumbs";
 import { RFQButton } from "@/components/products/RFQButton";
+import { getProductBySlug, getRelatedProducts } from "@/lib/product-utils";
 
 const featureIcons = [ShieldCheck, Wrench, Truck, Star];
 
@@ -14,38 +15,55 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const product = PRODUCT_MAP[slug];
+  const product = getProductBySlug(slug);
 
   if (!product) {
     return {
       title: "Product Not Found | Industrial Components",
       description: "Industrial parts and accessories not found.",
+      keywords: ["industrial components", "diesel engine parts", "generator accessories"],
     };
   }
 
+  const keywords = [
+    product.category,
+    ...product.compatibleEngines,
+    "industrial components",
+    "diesel engine parts",
+    "power generation",
+  ];
+
   return {
     title: `${product.name} | Industrial Components`,
-    description: product.summary,
+    description: product.shortDescription,
+    keywords,
     alternates: { canonical: `https://industrialparts.example/products/${product.slug}` },
     openGraph: {
       title: `${product.name} | Industrial Components`,
-      description: product.summary,
+      description: product.shortDescription,
+      url: `https://industrialparts.example/products/${product.slug}`,
+      siteName: "Industrial Components",
       type: "website",
+      images: [{ url: product.images[0]?.url ?? "/products/placeholder.jpg", width: 1200, height: 630, alt: product.name }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${product.name} | Industrial Components`,
+      description: product.shortDescription,
+      images: [product.images[0]?.url ?? "/products/placeholder.jpg"],
     },
   };
 }
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const product = PRODUCT_MAP[slug];
+  const product = getProductBySlug(slug);
 
   if (!product) {
     notFound();
   }
 
-  const relatedProducts = PRODUCTS.filter(
-    (item) => item.category === product.category && item.slug !== product.slug,
-  ).slice(0, 4);
+  const relatedProducts = getRelatedProducts(product, 4);
 
   return (
     <div className="bg-slate-50 pb-20 pt-28">
@@ -64,13 +82,13 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
               <div className="mb-4 grid gap-3 md:grid-cols-4">
                 {product.images.map((image, index) => (
-                  <div key={index} className={`overflow-hidden rounded-xl border ${index === 0 ? "border-orange-400" : "border-slate-200"}`}>
-                    <img src={image} alt={`${product.name} gallery ${index + 1}`} className="h-24 w-full object-cover" loading="lazy" />
+                  <div key={image.id} className={`overflow-hidden rounded-xl border ${index === 0 ? "border-orange-400" : "border-slate-200"}`}>
+                    <img src={image.url} alt={image.alt} className="h-24 w-full object-cover" loading="lazy" />
                   </div>
                 ))}
               </div>
               <div className="overflow-hidden rounded-2xl bg-slate-100">
-                <img src={product.images[0]} alt={product.name} className="h-[480px] w-full object-cover transition-transform duration-500 hover:scale-105" />
+                <img src={product.images[0]?.url ?? "/products/placeholder.jpg"} alt={product.images[0]?.alt ?? product.name} className="h-[480px] w-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
               </div>
             </div>
           </section>
@@ -221,7 +239,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             {relatedProducts.map((item) => (
               <Link key={item.slug} href={`/products/${item.slug}`} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition-transform hover:-translate-y-1 hover:shadow-md">
                 <div className="overflow-hidden rounded-xl">
-                  <img src={item.images[0]} alt={item.name} className="h-36 w-full object-cover" loading="lazy" />
+                  <img src={item.images[0]?.url ?? "/products/placeholder.jpg"} alt={item.images[0]?.alt ?? item.name} className="h-36 w-full object-cover" loading="lazy" />
                 </div>
                 <div className="mt-4">
                   <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-sky-700">{item.category}</div>

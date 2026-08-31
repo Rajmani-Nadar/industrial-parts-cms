@@ -4,44 +4,25 @@
  * with CMS API responses without changing the UI components.
  */
 
-export type ProductAvailability = "In Stock" | "Custom Manufacturing" | "OEM Compatible";
+import type {
+  Product,
+  ProductApplication,
+  ProductAvailability,
+  ProductDownload,
+  ProductFeature,
+  ProductImage,
+  ProductSpecification,
+} from "@/types/product";
 
-export type ProductSpecification = {
-  label: string;
-  value: string;
-};
-
-export type ProductDownload = {
-  name: string;
-  type: "PDF" | "Manual" | "Chart" | "Safety";
-  url: string;
-};
-
-export type ProductApplication = {
-  name: string;
-  description: string;
-  image: string;
-};
-
-export type Product = {
-  id: string;
-  slug: string;
-  sku: string;
-  brand: string;
-  name: string;
-  category: string;
-  shortDescription: string;
-  description: string;
-  summary: string;
-  availability: ProductAvailability;
-  compatibleEngines: string[];
-  applications: string[];
-  features: string[];
-  images: string[];
-  specifications: ProductSpecification[];
-  downloads: ProductDownload[];
-  tags: string[];
-};
+export type {
+  Product,
+  ProductApplication,
+  ProductAvailability,
+  ProductDownload,
+  ProductFeature,
+  ProductImage,
+  ProductSpecification,
+} from "@/types/product";
 
 export const PRODUCT_CATEGORIES = [
   "Engine Braking Systems",
@@ -77,6 +58,15 @@ export const PRODUCT_APPLICATIONS = {
   Construction: "Construction machinery and earthmoving equipment",
   Agriculture: "Agricultural tractors and field machinery",
 };
+
+const normalizeImages = (product: { name: string; slug: string; images: string[] }): Product["images"] =>
+  product.images.map((url, index) => ({
+    id: `${product.slug}-image-${index + 1}`,
+    url,
+    alt: `${product.name} image ${index + 1}`,
+    width: 1200,
+    height: 1200,
+  }));
 
 export const APPLICATION_CARDS: ProductApplication[] = [
   {
@@ -117,7 +107,12 @@ export const APPLICATION_CARDS: ProductApplication[] = [
   },
 ];
 
-export const PRODUCTS: Product[] = [
+type RawProduct = Omit<Product, "images" | "availability"> & {
+  availability: ProductAvailability;
+  images: string[];
+};
+
+const RAW_PRODUCTS: RawProduct[] = [
   {
     id: "prod-bleeder-001",
     slug: "bleeder-brake-assembly",
@@ -1000,6 +995,11 @@ export const PRODUCTS: Product[] = [
     tags: ["relay", "module", "control"],
   },
 ];
+
+export const PRODUCTS: Product[] = RAW_PRODUCTS.map((product) => ({
+  ...product,
+  images: normalizeImages(product),
+})) as Product[];
 
 export const PRODUCT_MAP = Object.fromEntries(PRODUCTS.map((product) => [product.slug, product]));
 

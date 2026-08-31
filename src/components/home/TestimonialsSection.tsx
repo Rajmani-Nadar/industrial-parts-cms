@@ -76,7 +76,7 @@ export function TestimonialsSection() {
 
                 {/* Quote */}
                 <p className="text-xl md:text-2xl font-semibold mb-8 text-gray-900">
-                  "{TESTIMONIALS[current].quote}"
+                  &quot;{TESTIMONIALS[current].quote}&quot;
                 </p>
 
                 {/* Author Info */}

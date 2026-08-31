@@ -5,8 +5,8 @@
 
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
-import { Badge } from "lucide-react";
 import { FEATURED_PRODUCTS } from "@/constants";
 import { COLORS } from "@/constants";
 
@@ -138,19 +138,21 @@ export function FeaturedProductsSection() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
         >
-          <motion.button
-            className="px-8 py-3 rounded-lg font-semibold border-2 transition-all"
-            style={{
-              borderColor: COLORS.navy[500],
-              color: COLORS.navy[500],
-            }}
-            whileHover={{
-              backgroundColor: COLORS.navy[500],
-              color: "white",
-            }}
-          >
-            View All Products
-          </motion.button>
+          <Link href="/products">
+            <motion.button
+              className="px-8 py-3 rounded-lg font-semibold border-2 transition-all"
+              style={{
+                borderColor: COLORS.navy[500],
+                color: COLORS.navy[500],
+              }}
+              whileHover={{
+                backgroundColor: COLORS.navy[500],
+                color: "white",
+              }}
+            >
+              View All Products
+            </motion.button>
+          </Link>
         </motion.div>
       </div>
     </section>

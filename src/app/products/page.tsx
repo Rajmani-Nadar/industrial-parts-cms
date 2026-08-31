@@ -1,11 +1,32 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Filter, Search, SlidersHorizontal, X } from "lucide-react";
-import { PRODUCT_APPLICATIONS, PRODUCT_BRANDS, PRODUCT_CATEGORIES, PRODUCTS, Product } from "@/data/products";
+import { useRouter, useSearchParams } from "next/navigation";
+import { PRODUCT_APPLICATIONS, PRODUCT_BRANDS, PRODUCT_CATEGORIES, PRODUCTS } from "@/data/products";
 import { RFQButton } from "@/components/products/RFQButton";
 import { EmptyState } from "@/components/products/EmptyState";
+import type { Product } from "@/types/product";
+import { filterProducts, getApplications, getAvailabilityOptions, getCategories, getEngineBrands } from "@/lib/product-utils";
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={<ProductsPageFallback />}>
+      <ProductsPageContent />
+    </Suspense>
+  );
+}
+
+function ProductsPageFallback() {
+  return (
+    <div className="bg-slate-50 pb-16 pt-28">
+      <div className="mx-auto max-w-7xl px-4 py-8">
+        <div className="h-60 animate-pulse rounded-2xl bg-slate-200" />
+      </div>
+    </div>
+  );
+}
 
 const sortOptions = [
   { value: "newest", label: "Newest" },
@@ -17,68 +38,50 @@ const sortOptions = [
 
 type SortValue = (typeof sortOptions)[number]["value"];
 
-const categoryOptions = [...PRODUCT_CATEGORIES];
-const brandOptions = [...PRODUCT_BRANDS];
-const availabilityOptions = ["In Stock", "Custom Manufacturing", "OEM Compatible"] as const;
+const categoryOptions = getCategories();
+const brandOptions = getEngineBrands();
+const applicationOptions = getApplications();
+const availabilityOptions = getAvailabilityOptions() as readonly string[];
 
-export default function ProductsPage() {
-  const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedBrand, setSelectedBrand] = useState("All");
-  const [selectedApplication, setSelectedApplication] = useState("All");
-  const [selectedAvailability, setSelectedAvailability] = useState("All");
-  const [sortBy, setSortBy] = useState<SortValue>("newest");
+function ProductsPageContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [search, setSearch] = useState(searchParams.get("q") ?? "");
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get("category") ?? "All");
+  const [selectedBrand, setSelectedBrand] = useState(searchParams.get("brand") ?? "All");
+  const [selectedApplication, setSelectedApplication] = useState(searchParams.get("application") ?? "All");
+  const [selectedAvailability, setSelectedAvailability] = useState(searchParams.get("availability") ?? "All");
+  const [sortBy, setSortBy] = useState<SortValue>((searchParams.get("sort") as SortValue) ?? "newest");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams();
-    if (search) params.set("q", search);
+    if (search) params.set("q", search.trim());
     if (selectedCategory !== "All") params.set("category", selectedCategory);
     if (selectedBrand !== "All") params.set("brand", selectedBrand);
     if (selectedApplication !== "All") params.set("application", selectedApplication);
     if (selectedAvailability !== "All") params.set("availability", selectedAvailability);
     if (sortBy !== "newest") params.set("sort", sortBy);
 
-    const url = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}`;
-    window.history.replaceState({}, "", url);
-  }, [search, selectedCategory, selectedBrand, selectedApplication, selectedAvailability, sortBy]);
+    const next = params.toString();
+    router.replace(next ? `?${next}` : "", { scroll: false });
+  }, [router, search, selectedCategory, selectedBrand, selectedApplication, selectedAvailability, sortBy]);
 
-  const filteredProducts = useMemo(() => {
-    const normalized = search.trim().toLowerCase();
-
-    return [...PRODUCTS]
-      .filter((product) => {
-        const matchesSearch =
-          !normalized ||
-          product.name.toLowerCase().includes(normalized) ||
-          product.sku.toLowerCase().includes(normalized) ||
-          product.category.toLowerCase().includes(normalized) ||
-          product.compatibleEngines.some((engine) => engine.toLowerCase().includes(normalized));
-
-        const matchesCategory = selectedCategory === "All" || product.category === selectedCategory;
-        const matchesBrand = selectedBrand === "All" || product.brand === selectedBrand;
-        const matchesApplication =
-          selectedApplication === "All" || product.applications.includes(selectedApplication);
-        const matchesAvailability =
-          selectedAvailability === "All" || product.availability === selectedAvailability;
-
-        return matchesSearch && matchesCategory && matchesBrand && matchesApplication && matchesAvailability;
-      })
-      .sort((a, b) => {
-        switch (sortBy) {
-          case "name":
-            return a.name.localeCompare(b.name);
-          case "category":
-            return a.category.localeCompare(b.category) || a.name.localeCompare(b.name);
-          case "brand":
-            return a.brand.localeCompare(b.brand) || a.name.localeCompare(b.name);
-          case "application":
-            return a.applications[0].localeCompare(b.applications[0]) || a.name.localeCompare(b.name);
-          default:
-            return 0;
-        }
-      });
-  }, [search, selectedCategory, selectedBrand, selectedApplication, selectedAvailability, sortBy]);
+  const filteredProducts = useMemo(
+    () =>
+      filterProducts(
+        {
+          search,
+          category: selectedCategory,
+          brand: selectedBrand,
+          application: selectedApplication,
+          availability: selectedAvailability,
+          sort: sortBy,
+        },
+        PRODUCTS,
+      ),
+    [search, selectedCategory, selectedBrand, selectedApplication, selectedAvailability, sortBy],
+  );
 
   const clearFilters = () => {
     setSearch("");
@@ -90,7 +93,7 @@ export default function ProductsPage() {
   };
 
   return (
-    <div className="bg-slate-50 pb-16 pt-28">
+    <div className="bg-slate-50 pb-16 pt-24 md:pt-28">
       <section className="relative overflow-hidden bg-gradient-to-br from-sky-900 via-sky-800 to-sky-700">
         <div className="absolute inset-0 opacity-25" style={{ backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.2) 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
         <div className="relative mx-auto max-w-7xl px-4 py-20 md:py-28">
@@ -113,7 +116,7 @@ export default function ProductsPage() {
       </section>
 
       <div className="mx-auto max-w-7xl px-4 py-8">
-        <div className="sticky top-20 z-30 -mt-12 rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-xl backdrop-blur-md">
+        <div className="sticky top-16 z-20 -mt-12 rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-xl backdrop-blur-md md:top-20">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="relative flex-1">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
@@ -169,7 +172,7 @@ export default function ProductsPage() {
             {filteredProducts.length === 0 ? (
               <EmptyState onReset={clearFilters} />
             ) : (
-              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+              <div className="grid items-stretch gap-6 md:grid-cols-2 xl:grid-cols-4">
                 {filteredProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
@@ -272,7 +275,7 @@ function ProductFilters({
     },
     {
       title: "Application",
-      items: ["All", ...Object.keys(PRODUCT_APPLICATIONS)],
+      items: ["All", ...applicationOptions],
       value: selectedApplication,
       onChange: onApplicationChange,
     },
@@ -329,46 +332,54 @@ function ProductCard({ product }: { product: Product }) {
       viewport={{ once: true }}
       whileHover={{ y: -8 }}
       transition={{ duration: 0.25 }}
-      className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all hover:shadow-xl"
+      className="group flex h-full min-w-0 flex-col rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-orange-200 hover:shadow-xl"
     >
-      <div className="relative overflow-hidden">
+      <div className="relative overflow-hidden rounded-t-2xl">
         <img
-          src={product.images[0]}
-          alt={product.name}
-          className="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          src={product.images[0]?.url ?? product.images[0]?.url ?? "/products/placeholder.jpg"}
+          alt={product.images[0]?.alt ?? product.name}
+          className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
         />
-        <div className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-sky-900">
-          {product.category}
-        </div>
-        <div className="absolute right-3 top-3 rounded-full bg-orange-500 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
-          {product.compatibleEngines[0]}
+
+        <div className="absolute inset-x-3 top-3 flex flex-wrap items-center gap-2">
+          <span className="max-w-[60%] truncate rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-sky-900 shadow-sm">
+            {product.category}
+          </span>
+          <span className="ml-auto max-w-[45%] truncate rounded-full bg-orange-500 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white shadow-sm">
+            {product.compatibleEngines[0]}
+          </span>
         </div>
       </div>
 
-      <div className="space-y-4 p-5">
-        <div>
+      <div className="flex flex-1 flex-col p-5">
+        <div className="flex-1">
           <div className="mb-2 text-xs font-medium uppercase tracking-[0.18em] text-sky-700">
             {product.sku}
           </div>
           <h3 className="text-xl font-bold text-slate-800">{product.name}</h3>
         </div>
 
-        <p className="text-sm leading-6 text-slate-600">{product.shortDescription}</p>
+        <p className="mt-4 text-sm leading-6 text-slate-600">{product.shortDescription}</p>
 
-        <div className="flex items-center justify-between border-t border-slate-100 pt-3 text-sm text-slate-600">
+        <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-sm text-slate-600">
           <span>{product.availability}</span>
           <span className="font-medium text-sky-900">{product.compatibleEngines.length} fits</span>
         </div>
 
-        <div className="flex gap-3 pt-2">
+        <div className="mt-auto grid grid-cols-2 gap-3 pt-4">
           <a
             href={`/products/${product.slug}`}
-            className="flex-1 rounded-lg border border-sky-800 px-4 py-2.5 text-center text-sm font-semibold text-sky-800 transition-colors hover:bg-sky-50"
+            className="flex h-12 items-center justify-center rounded-lg border border-sky-800 px-3 text-center text-sm font-semibold text-sky-800 transition-colors hover:bg-sky-50"
           >
             View Details
           </a>
-          <RFQButton variant="primary" label="Quote" compact />
+          <RFQButton
+            variant="primary"
+            label="Quote"
+            compact
+            className="h-12 w-full"
+          />
         </div>
       </div>
     </motion.article>

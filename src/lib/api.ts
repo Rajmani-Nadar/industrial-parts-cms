@@ -4,7 +4,7 @@
  */
 
 export interface ApiRequestOptions extends RequestInit {
-  query?: Record<string, string | number | boolean>;
+  query?: Record<string, string | number | boolean | null | undefined>;
   timeout?: number;
 }
 
@@ -19,7 +19,7 @@ export interface ApiError {
   status: number;
   message: string;
   code?: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
 }
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.industrial.com";
@@ -28,7 +28,7 @@ const DEFAULT_TIMEOUT = 30000; // 30 seconds
 /**
  * Build query string from object
  */
-function buildQueryString(query: Record<string, any>): string {
+function buildQueryString(query: Record<string, string | number | boolean | null | undefined>): string {
   const params = new URLSearchParams();
   Object.entries(query).forEach(([key, value]) => {
     if (value !== null && value !== undefined) {
@@ -45,15 +45,15 @@ async function handleResponse<T>(response: Response): Promise<T> {
   const contentType = response.headers.get("content-type");
 
   if (!response.ok) {
-    let errorData: any = {};
+    let errorData: Record<string, unknown> = {};
     if (contentType?.includes("application/json")) {
-      errorData = await response.json();
+      errorData = (await response.json()) as Record<string, unknown>;
     }
     throw {
       status: response.status,
-      message: errorData.message || response.statusText,
-      code: errorData.code,
-      details: errorData.details,
+      message: (errorData.message as string) || response.statusText,
+      code: errorData.code as string | undefined,
+      details: errorData.details as Record<string, unknown> | undefined,
     } as ApiError;
   }
 
@@ -61,13 +61,13 @@ async function handleResponse<T>(response: Response): Promise<T> {
     return (await response.text()) as T;
   }
 
-  return response.json();
+  return response.json() as Promise<T>;
 }
 
 /**
  * API GET request
  */
-export async function apiGet<T = any>(
+export async function apiGet<T = unknown>(
   endpoint: string,
   options?: ApiRequestOptions
 ): Promise<T> {
@@ -103,9 +103,9 @@ export async function apiGet<T = any>(
 /**
  * API POST request
  */
-export async function apiPost<T = any>(
+export async function apiPost<T = unknown>(
   endpoint: string,
-  data?: Record<string, any>,
+  data?: Record<string, unknown>,
   options?: ApiRequestOptions
 ): Promise<T> {
   const url = new URL(endpoint, API_BASE_URL);
@@ -141,9 +141,9 @@ export async function apiPost<T = any>(
 /**
  * API PUT request
  */
-export async function apiPut<T = any>(
+export async function apiPut<T = unknown>(
   endpoint: string,
-  data?: Record<string, any>,
+  data?: Record<string, unknown>,
   options?: ApiRequestOptions
 ): Promise<T> {
   const url = new URL(endpoint, API_BASE_URL);
@@ -179,7 +179,7 @@ export async function apiPut<T = any>(
 /**
  * API DELETE request
  */
-export async function apiDelete<T = any>(
+export async function apiDelete<T = unknown>(
   endpoint: string,
   options?: ApiRequestOptions
 ): Promise<T> {

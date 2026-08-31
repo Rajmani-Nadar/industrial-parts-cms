@@ -1,9 +1,9 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Mail, Phone, MapPin } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { FOOTER_LINKS, SOCIAL_LINKS, COLORS } from "@/constants";
 
 /**
@@ -132,7 +132,7 @@ export function Footer() {
                   type="email"
                   placeholder="Enter your email"
                   className="flex-1 px-3 py-2 rounded text-sm bg-gray-800 text-white placeholder-gray-500 focus:outline-none focus:ring-2"
-                  style={{ "--tw-ring-color": COLORS.orange[500] } as any}
+                  style={{ ["--tw-ring-color" as string]: COLORS.orange[500] } as CSSProperties}
                 />
                 <motion.button
                   type="submit"

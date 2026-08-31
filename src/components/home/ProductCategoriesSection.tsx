@@ -5,6 +5,7 @@
 
 "use client";
 
+import type { ComponentType } from "react";
 import { motion } from "framer-motion";
 import * as Icons from "lucide-react";
 import { PRODUCT_CATEGORIES_HOMEPAGE } from "@/constants/homepage";
@@ -25,7 +26,7 @@ export function ProductCategoriesSection() {
   };
 
   const getIcon = (iconName: string) => {
-    const Icon = Icons[iconName as keyof typeof Icons] as any;
+    const Icon = Icons[iconName as keyof typeof Icons] as ComponentType<{ className?: string }> | undefined;
     return Icon ? <Icon className="w-8 h-8" /> : null;
   };
 
