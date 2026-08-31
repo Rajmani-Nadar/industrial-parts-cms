@@ -6,6 +6,7 @@
 "use client";
 
 import type { ComponentType } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import * as Icons from "lucide-react";
 import { PRODUCT_CATEGORIES_HOMEPAGE } from "@/constants/homepage";
@@ -60,64 +61,66 @@ export function ProductCategoriesSection() {
           viewport={{ once: true }}
         >
           {PRODUCT_CATEGORIES_HOMEPAGE.map((category) => (
-            <motion.div
+            <Link
               key={category.id}
-              className="group relative bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all"
-              variants={cardVariants}
+              href={category.href}
+              className="group relative block rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
             >
-              {/* Card Background Gradient on Hover */}
-              <div
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                style={{
-                  backgroundImage: `linear-gradient(135deg, ${COLORS.orange[500]}15 0%, ${COLORS.navy[500]}15 100%)`,
-                }}
-              />
+              <motion.div variants={cardVariants} className="h-full">
+                {/* Card Background Gradient on Hover */}
+                <div
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{
+                    backgroundImage: `linear-gradient(135deg, ${COLORS.orange[500]}15 0%, ${COLORS.navy[500]}15 100%)`,
+                  }}
+                />
 
-              {/* Card Content */}
-              <div className="relative p-6 h-full flex flex-col">
-                {/* Icon */}
+                {/* Card Content */}
+                <div className="relative p-6 h-full flex flex-col">
+                  {/* Icon */}
+                  <motion.div
+                    className="mb-4 p-3 rounded-lg w-fit"
+                    style={{ backgroundColor: COLORS.orange[500] + "20" }}
+                    whileHover={{ scale: 1.1 }}
+                  >
+                    <div style={{ color: COLORS.orange[500] }}>
+                      {getIcon(category.icon)}
+                    </div>
+                  </motion.div>
+
+                  {/* Title */}
+                  <h3
+                    className="text-lg font-bold mb-2 group-hover:underline transition-all"
+                    style={{ color: COLORS.navy[500] }}
+                  >
+                    {category.name}
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-gray-600 text-sm flex-grow mb-4">
+                    {category.description}
+                  </p>
+
+                  {/* Arrow */}
+                  <motion.div
+                    className="inline-flex items-center font-semibold text-sm"
+                    style={{ color: COLORS.orange[500] }}
+                    whileHover={{ x: 4 }}
+                  >
+                    Learn More →
+                  </motion.div>
+                </div>
+
+                {/* Hover Border */}
                 <motion.div
-                  className="mb-4 p-3 rounded-lg w-fit"
-                  style={{ backgroundColor: COLORS.orange[500] + "20" }}
-                  whileHover={{ scale: 1.1 }}
-                >
-                  <div style={{ color: COLORS.orange[500] }}>
-                    {getIcon(category.icon)}
-                  </div>
-                </motion.div>
-
-                {/* Title */}
-                <h3
-                  className="text-lg font-bold mb-2 group-hover:underline transition-all"
-                  style={{ color: COLORS.navy[500] }}
-                >
-                  {category.name}
-                </h3>
-
-                {/* Description */}
-                <p className="text-gray-600 text-sm flex-grow mb-4">
-                  {category.description}
-                </p>
-
-                {/* Arrow */}
-                <motion.div
-                  className="inline-flex items-center font-semibold text-sm"
-                  style={{ color: COLORS.orange[500] }}
-                  whileHover={{ x: 4 }}
-                >
-                  Learn More →
-                </motion.div>
-              </div>
-
-              {/* Hover Border */}
-              <motion.div
-                className="absolute bottom-0 left-0 right-0 h-1"
-                style={{ backgroundColor: COLORS.orange[500] }}
-                initial={{ scaleX: 0 }}
-                whileHover={{ scaleX: 1 }}
-                transition={{ duration: 0.3 }}
-              />
-            </motion.div>
+                  className="absolute bottom-0 left-0 right-0 h-1"
+                  style={{ backgroundColor: COLORS.orange[500] }}
+                  initial={{ scaleX: 0 }}
+                  whileHover={{ scaleX: 1 }}
+                  transition={{ duration: 0.3 }}
+                />
+              </motion.div>
+            </Link>
           ))}
         </motion.div>
       </div>

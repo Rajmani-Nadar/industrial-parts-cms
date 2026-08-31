@@ -14,6 +14,7 @@ export type ProductCategory = {
   name: string;
   description: string;
   icon: string;
+  href: string;
   image?: string;
 };
 
@@ -75,48 +76,56 @@ export const PRODUCT_CATEGORIES_HOMEPAGE: ProductCategory[] = [
     name: "Engine Braking Systems",
     description: "Advanced engine braking solutions for maximum safety and performance",
     icon: "Zap",
+    href: "/products?category=engine-braking-systems",
   },
   {
     id: "bleeder-brakes",
     name: "Bleeder Brakes",
     description: "Precision-engineered bleeder brakes for heavy-duty applications",
     icon: "Gauge",
+    href: "/products?category=bleeder-brakes",
   },
   {
     id: "generator-accessories",
     name: "Generator Accessories",
     description: "Complete range of generator accessories and components",
     icon: "Cpu",
+    href: "/products?category=generator-accessories",
   },
   {
     id: "ats-controllers",
     name: "ATS Controllers",
     description: "Intelligent Automatic Transfer Switch controllers",
     icon: "Wifi",
+    href: "/products?category=ats-controllers",
   },
   {
     id: "avr-modules",
     name: "AVR Modules",
     description: "Automatic Voltage Regulator modules for optimal power output",
     icon: "Zap",
+    href: "/products?category=avr-modules",
   },
   {
     id: "diesel-parts",
     name: "Diesel Engine Spare Parts",
     description: "Genuine OEM diesel engine components and spare parts",
     icon: "Wrench",
+    href: "/products?category=diesel-engine-spare-parts",
   },
   {
     id: "sensors",
     name: "Sensors & Wiring",
     description: "Industrial sensors and precision wiring systems",
     icon: "Radio",
+    href: "/products?category=sensors",
   },
   {
     id: "heavy-duty",
     name: "Heavy Duty Components",
     description: "Robust components designed for extreme operating conditions",
     icon: "Shield",
+    href: "/products?category=heavy-duty-components",
   },
 ];
 

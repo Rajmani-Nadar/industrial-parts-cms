@@ -43,11 +43,27 @@ const brandOptions = getEngineBrands();
 const applicationOptions = getApplications();
 const availabilityOptions = getAvailabilityOptions() as readonly string[];
 
+const slugifyCategory = (value: string) =>
+  value
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+const resolveCategoryFromQuery = (value: string | null) => {
+  if (!value) return "All";
+
+  const normalized = decodeURIComponent(value).trim();
+  const match = categoryOptions.find((category) => slugifyCategory(category) === normalized.toLowerCase());
+  return match ?? "All";
+};
+
 function ProductsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [search, setSearch] = useState(searchParams.get("q") ?? "");
-  const [selectedCategory, setSelectedCategory] = useState(searchParams.get("category") ?? "All");
+  const [selectedCategory, setSelectedCategory] = useState(() => resolveCategoryFromQuery(searchParams.get("category")));
   const [selectedBrand, setSelectedBrand] = useState(searchParams.get("brand") ?? "All");
   const [selectedApplication, setSelectedApplication] = useState(searchParams.get("application") ?? "All");
   const [selectedAvailability, setSelectedAvailability] = useState(searchParams.get("availability") ?? "All");
@@ -57,7 +73,7 @@ function ProductsPageContent() {
   useEffect(() => {
     const params = new URLSearchParams();
     if (search) params.set("q", search.trim());
-    if (selectedCategory !== "All") params.set("category", selectedCategory);
+    if (selectedCategory !== "All") params.set("category", slugifyCategory(selectedCategory));
     if (selectedBrand !== "All") params.set("brand", selectedBrand);
     if (selectedApplication !== "All") params.set("application", selectedApplication);
     if (selectedAvailability !== "All") params.set("availability", selectedAvailability);
