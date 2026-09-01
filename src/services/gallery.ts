@@ -1,28 +1,30 @@
-import { GALLERY_ITEMS } from "@/data/gallery";
-import { get } from "@/lib/strapi";
-import type { GalleryItem } from "@/types/gallery";
+﻿import { GALLERY_ITEMS } from "@/data/gallery";
+import { fetchAPI } from "@/lib/fetchAPI";
+import type { GalleryItem, StrapiGalleryEntry } from "@/types/gallery";
 
-export async function getGalleryItems(): Promise<GalleryItem[]> {
-  const response = await get<{ data: Array<{ id: number; attributes: Record<string, unknown> }> }>("/galleries", {
-    populate: "*",
+export async function getGallery(): Promise<GalleryItem[]> {
+  const response = await fetchAPI<{ data: Array<{ id: number | string; attributes: StrapiGalleryEntry }> }>('/galleries', {
+    populate: ['images'],
+    sort: 'displayOrder:asc',
   });
 
   if (response?.data && Array.isArray(response.data)) {
     const mapped = response.data
       .map((entry) => {
-        const attrs = entry?.attributes as Record<string, unknown> | undefined;
-        if (!attrs) return null;
+        const attributes = entry?.attributes;
+        if (!attributes) return null;
+
         return {
-          id: String(entry.id ?? attrs.title ?? Math.random()),
-          title: String(attrs.title ?? "Gallery Item"),
-          category: String(attrs.category ?? "Products"),
-          location: String(attrs.location ?? "Industrial Facility"),
-          image: String((attrs.image as Record<string, unknown> | undefined)?.url ?? "/products/placeholder.jpg"),
-          width: Number((attrs.image as Record<string, unknown> | undefined)?.width ?? 1200),
-          height: Number((attrs.image as Record<string, unknown> | undefined)?.height ?? 900),
+          id: String(entry.id ?? attributes.title ?? 'gallery-item'),
+          title: attributes.title ?? 'Gallery Item',
+          category: attributes.category ?? 'Products',
+          location: attributes.location ?? 'Industrial Facility',
+          image: attributes.image?.url ?? '/products/placeholder.jpg',
+          width: Number(attributes.image?.width ?? 1200),
+          height: Number(attributes.image?.height ?? 900),
         } satisfies GalleryItem;
       })
-      .filter(Boolean) as GalleryItem[];
+      .filter((item): item is GalleryItem => Boolean(item));
 
     if (mapped.length > 0) {
       return mapped;
@@ -32,7 +34,21 @@ export async function getGalleryItems(): Promise<GalleryItem[]> {
   return GALLERY_ITEMS;
 }
 
+export async function getGalleryByCategory(category: string): Promise<GalleryItem[]> {
+  const gallery = await getGallery();
+  return gallery.filter((item) => item.category.toLowerCase() === category.toLowerCase());
+}
+
+export async function getFeaturedGallery(): Promise<GalleryItem[]> {
+  const gallery = await getGallery();
+  return gallery.slice(0, 6);
+}
+
+export async function getGalleryItems(): Promise<GalleryItem[]> {
+  return getGallery();
+}
+
 export async function getGalleryFilters(): Promise<string[]> {
-  const items = await getGalleryItems();
-  return ["All", ...new Set(items.map((item) => item.category))];
+  const items = await getGallery();
+  return ['All', ...new Set(items.map((item) => item.category))];
 }
