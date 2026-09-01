@@ -61,6 +61,41 @@ export interface Product {
   tags: string[];
 }
 
+export interface StrapiProductEntry extends Record<string, unknown> {
+  id?: number | string;
+  slug?: string;
+  sku?: string;
+  brand?: string;
+  name?: string;
+  category?: string;
+  shortDescription?: string;
+  description?: string;
+  summary?: string;
+  availability?: ProductAvailability;
+  compatibleEngines?: string[];
+  applications?: Array<string | { name?: string; description?: string; image?: string }>;
+  features?: string[];
+  images?: Array<{
+    id?: string | number;
+    url?: string;
+    alternativeText?: string;
+    width?: number;
+    height?: number;
+  }>;
+  specifications?: Array<{
+    label?: string;
+    value?: string;
+    name?: string;
+    text?: string;
+  }>;
+  downloads?: Array<{
+    name?: string;
+    type?: string;
+    url?: string;
+  }>;
+  tags?: string[];
+}
+
 export type ProductSortOption = "newest" | "name" | "category" | "brand" | "application";
 
 export interface ProductFilters {
