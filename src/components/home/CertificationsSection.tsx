@@ -10,7 +10,17 @@ import { Shield } from "lucide-react";
 import { CERTIFICATIONS } from "@/constants/homepage";
 import { COLORS } from "@/constants";
 
-export function CertificationsSection() {
+type CertificationCard = {
+  id: string;
+  name: string;
+  description: string;
+};
+
+type CertificationsSectionProps = {
+  certifications?: CertificationCard[];
+};
+
+export function CertificationsSection({ certifications = CERTIFICATIONS }: CertificationsSectionProps) {
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -53,7 +63,7 @@ export function CertificationsSection() {
           whileInView="visible"
           viewport={{ once: true }}
         >
-          {CERTIFICATIONS.map((cert) => (
+          {certifications.map((cert) => (
             <motion.div
               key={cert.id}
               className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-8 text-center border border-gray-200 hover:shadow-2xl transition-shadow"

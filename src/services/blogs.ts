@@ -51,6 +51,11 @@ export async function getFeaturedBlogs(): Promise<BlogArticle[]> {
   return blogs.filter((blog) => blog.featured).slice(0, 3);
 }
 
+export async function getLatestBlogs(): Promise<BlogArticle[]> {
+  const blogs = await getBlogs();
+  return blogs.slice(0, 3);
+}
+
 export async function getBlogBySlug(slug: string): Promise<BlogArticle | null> {
   const response = await fetchAPI<{ data: Array<{ id: number | string; attributes: StrapiBlogEntry }> }>("/articles", {
     populate: ["coverImage", "author.avatar"],

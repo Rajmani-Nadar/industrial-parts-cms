@@ -11,15 +11,30 @@ import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { TESTIMONIALS } from "@/constants/homepage";
 import { COLORS } from "@/constants";
 
-export function TestimonialsSection() {
+type TestimonialCard = {
+  id: string;
+  quote: string;
+  author: string;
+  title: string;
+  company: string;
+  rating: number;
+};
+
+type TestimonialsSectionProps = {
+  testimonials?: TestimonialCard[];
+};
+
+export function TestimonialsSection({ testimonials = TESTIMONIALS }: TestimonialsSectionProps) {
   const [current, setCurrent] = useState(0);
 
+  const safeTestimonials = testimonials.length > 0 ? testimonials : TESTIMONIALS;
+
   const handlePrev = () => {
-    setCurrent((prev) => (prev === 0 ? TESTIMONIALS.length - 1 : prev - 1));
+    setCurrent((prev) => (prev === 0 ? safeTestimonials.length - 1 : prev - 1));
   };
 
   const handleNext = () => {
-    setCurrent((prev) => (prev === TESTIMONIALS.length - 1 ? 0 : prev + 1));
+    setCurrent((prev) => (prev === safeTestimonials.length - 1 ? 0 : prev + 1));
   };
 
   const slideVariants = {
@@ -64,7 +79,7 @@ export function TestimonialsSection() {
               <div className="max-w-3xl mx-auto">
                 {/* Rating Stars */}
                 <div className="flex items-center space-x-1 mb-6">
-                  {Array.from({ length: TESTIMONIALS[current].rating }).map((_, i) => (
+                  {Array.from({ length: safeTestimonials[current].rating }).map((_, i) => (
                     <Star
                       key={i}
                       className="w-5 h-5"
@@ -76,7 +91,7 @@ export function TestimonialsSection() {
 
                 {/* Quote */}
                 <p className="text-xl md:text-2xl font-semibold mb-8 text-gray-900">
-                  &quot;{TESTIMONIALS[current].quote}&quot;
+                  &quot;{safeTestimonials[current].quote}&quot;
                 </p>
 
                 {/* Author Info */}
@@ -95,10 +110,10 @@ export function TestimonialsSection() {
                       className="font-bold text-sm"
                       style={{ color: COLORS.navy[500] }}
                     >
-                      {TESTIMONIALS[current].author}
+                      {safeTestimonials[current].author}
                     </p>
                     <p className="text-gray-600 text-sm">
-                      {TESTIMONIALS[current].title} at {TESTIMONIALS[current].company}
+                      {safeTestimonials[current].title} at {safeTestimonials[current].company}
                     </p>
                   </div>
                 </div>
@@ -123,7 +138,7 @@ export function TestimonialsSection() {
 
             {/* Dots Indicator */}
             <div className="flex space-x-2">
-              {TESTIMONIALS.map((_, idx) => (
+              {safeTestimonials.map((_, idx) => (
                 <motion.button
                   key={idx}
                   onClick={() => setCurrent(idx)}
@@ -154,7 +169,7 @@ export function TestimonialsSection() {
 
           {/* Counter */}
           <p className="text-center text-gray-600 text-sm mt-6">
-            {current + 1} / {TESTIMONIALS.length}
+            {current + 1} / {safeTestimonials.length}
           </p>
         </div>
       </div>

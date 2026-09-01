@@ -10,7 +10,20 @@ import { motion } from "framer-motion";
 import { FEATURED_PRODUCTS } from "@/constants";
 import { COLORS } from "@/constants";
 
-export function FeaturedProductsSection() {
+type FeaturedProductCard = {
+  id: string;
+  name: string;
+  category: string;
+  shortDescription: string;
+  features: string[];
+  rating?: number;
+};
+
+type FeaturedProductsSectionProps = {
+  products?: FeaturedProductCard[];
+};
+
+export function FeaturedProductsSection({ products = FEATURED_PRODUCTS }: FeaturedProductsSectionProps) {
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -53,7 +66,7 @@ export function FeaturedProductsSection() {
           whileInView="visible"
           viewport={{ once: true }}
         >
-          {FEATURED_PRODUCTS.map((product) => (
+          {products.map((product) => (
             <motion.div
               key={product.id}
               className="group bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all"

@@ -10,8 +10,13 @@ import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { COLORS } from "@/constants";
 import { buildRFQLink } from "@/lib/rfq";
+import type { CompanySettings } from "@/types/company";
 
-export function HeroSection() {
+type HeroSectionProps = {
+  company?: CompanySettings;
+};
+
+export function HeroSection({ company }: HeroSectionProps = {}) {
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -71,7 +76,7 @@ export function HeroSection() {
             className="text-sm font-medium"
             style={{ color: COLORS.orange[500] }}
           >
-            Industry Leading Quality
+            {company?.companyName ?? "Industry Leading Quality"}
           </span>
         </motion.div>
 
@@ -135,7 +140,7 @@ export function HeroSection() {
               className="inline-flex items-center justify-center px-8 py-4 rounded-lg font-semibold text-white transition-all"
               style={{ backgroundColor: COLORS.orange[500] }}
             >
-              Request a Quote
+              {company?.heroCtaText ?? "Request a Quote"}
             </Link>
           </motion.div>
           <motion.div whileHover={{ backgroundColor: COLORS.orange[500] + "20" }} whileTap={{ scale: 0.95 }}>

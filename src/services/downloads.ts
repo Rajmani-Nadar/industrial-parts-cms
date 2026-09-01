@@ -47,3 +47,8 @@ export async function getDownloadCategories(): Promise<string[]> {
   const downloads = await getDownloads();
   return [...new Set(downloads.map((item) => item.category))];
 }
+
+export async function getFeaturedDownloads(): Promise<DownloadDocument[]> {
+  const downloads = await getDownloads();
+  return downloads.slice(0, 3);
+}

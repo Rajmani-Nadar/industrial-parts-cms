@@ -19,47 +19,86 @@ import {
   FinalCTASection,
   FloatingWhatsAppButton,
 } from "@/components/home";
+import { getCompanySettings } from "@/services/company";
+import { getFeaturedIndustries } from "@/services/industries";
+import { getFeaturedCategories } from "@/services/categories";
+import { getFeaturedProducts } from "@/services/products";
+import { getFeaturedTestimonials } from "@/services/testimonials";
+import { getFeaturedCertifications } from "@/services/certifications";
+import { getLatestBlogs } from "@/services/blogs";
+import { getGalleryPreview } from "@/services/gallery";
+import { getFeaturedDownloads } from "@/services/downloads";
+import { PRODUCT_CATEGORIES_HOMEPAGE, INDUSTRIES_SERVED, CERTIFICATIONS, TESTIMONIALS } from "@/constants/homepage";
+import { FEATURED_PRODUCTS } from "@/constants/products";
 
-export default function Home() {
+export default async function Home() {
+  const [companySettings, featuredIndustries, featuredCategories, featuredProducts, featuredTestimonials, featuredCertifications, latestBlogs, galleryPreview, featuredDownloads] = await Promise.all([
+    getCompanySettings(),
+    getFeaturedIndustries(),
+    getFeaturedCategories(),
+    getFeaturedProducts(),
+    getFeaturedTestimonials(),
+    getFeaturedCertifications(),
+    getLatestBlogs(),
+    getGalleryPreview(),
+    getFeaturedDownloads(),
+  ]);
+
+  const homeData = {
+    company: companySettings,
+    industries: featuredIndustries.length > 0 ? featuredIndustries.map((industry) => ({
+      id: industry.id,
+      name: industry.name,
+      icon: industry.icon,
+      description: industry.description,
+    })) : INDUSTRIES_SERVED,
+    categories: featuredCategories.length > 0 ? featuredCategories.map((category) => ({
+      id: category.id,
+      name: category.name,
+      description: category.description,
+      icon: category.icon ?? "Cpu",
+      href: `/products?category=${category.slug}`,
+    })) : PRODUCT_CATEGORIES_HOMEPAGE,
+    products: featuredProducts.length > 0 ? featuredProducts.map((product) => ({
+      id: product.id,
+      name: product.name,
+      category: product.category,
+      shortDescription: product.shortDescription,
+      features: product.features.slice(0, 3),
+      rating: product.tags.includes("featured") ? 5 : 4,
+    })) : FEATURED_PRODUCTS,
+    certifications: featuredCertifications.length > 0 ? featuredCertifications.map((certification) => ({
+      id: certification.id,
+      name: certification.name,
+      description: certification.description,
+    })) : CERTIFICATIONS,
+    testimonials: featuredTestimonials.length > 0 ? featuredTestimonials.map((testimonial) => ({
+      id: testimonial.id,
+      quote: testimonial.quote,
+      author: testimonial.name,
+      title: testimonial.role,
+      company: testimonial.company,
+      rating: testimonial.rating ?? 5,
+    })) : TESTIMONIALS,
+    blogs: latestBlogs,
+    gallery: galleryPreview,
+    downloads: featuredDownloads,
+  };
+
   return (
     <div className="w-full">
-      {/* Hero Section - Full viewport with animated headline */}
-      <HeroSection />
-
-      {/* Trusted By Section - Client logos with marquee animation */}
+      <HeroSection company={homeData.company} />
       <TrustedBySection />
-
-      {/* Product Categories - 8 category cards with hover effects */}
-      <ProductCategoriesSection />
-
-      {/* About Preview - Company overview with highlights */}
+      <ProductCategoriesSection categories={homeData.categories} />
       <AboutPreviewSection />
-
-      {/* Why Choose Us - 6 feature cards with animations */}
       <WhyChooseUsSection />
-
-      {/* Industries Served - 8 industry cards with overlay */}
-      <IndustriesServedSection />
-
-      {/* Statistics Counter - Animated count-up numbers */}
+      <IndustriesServedSection industries={homeData.industries} />
       <StatisticsCounterSection />
-
-      {/* Featured Products - 6 premium product cards */}
-      <FeaturedProductsSection />
-
-      {/* Certifications - ISO and API certifications display */}
-      <CertificationsSection />
-
-      {/* Testimonials - Customer testimonials carousel */}
-      <TestimonialsSection />
-
-      {/* FAQ Accordion - Expandable FAQs */}
+      <FeaturedProductsSection products={homeData.products} />
+      <CertificationsSection certifications={homeData.certifications} />
+      <TestimonialsSection testimonials={homeData.testimonials} />
       <FAQAccordionSection />
-
-      {/* Final CTA - Conversion-focused banner */}
       <FinalCTASection />
-
-      {/* Floating WhatsApp Button - Sticky contact button */}
       <FloatingWhatsAppButton />
     </div>
   );

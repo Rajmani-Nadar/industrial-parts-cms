@@ -11,7 +11,18 @@ import * as Icons from "lucide-react";
 import { INDUSTRIES_SERVED } from "@/constants/homepage";
 import { COLORS } from "@/constants";
 
-export function IndustriesServedSection() {
+type IndustryCard = {
+  id: string;
+  name: string;
+  icon: string;
+  description: string;
+};
+
+type IndustriesServedSectionProps = {
+  industries?: IndustryCard[];
+};
+
+export function IndustriesServedSection({ industries = INDUSTRIES_SERVED }: IndustriesServedSectionProps) {
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -60,7 +71,7 @@ export function IndustriesServedSection() {
           whileInView="visible"
           viewport={{ once: true }}
         >
-          {INDUSTRIES_SERVED.map((industry) => (
+          {industries.map((industry) => (
             <motion.div
               key={industry.id}
               className="group relative rounded-xl overflow-hidden h-48 cursor-pointer"

@@ -44,6 +44,10 @@ export async function getFeaturedGallery(): Promise<GalleryItem[]> {
   return gallery.slice(0, 6);
 }
 
+export async function getGalleryPreview(): Promise<GalleryItem[]> {
+  return getFeaturedGallery();
+}
+
 export async function getGalleryItems(): Promise<GalleryItem[]> {
   return getGallery();
 }

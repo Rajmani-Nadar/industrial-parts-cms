@@ -81,3 +81,8 @@ export async function getIndustryBySlug(slug: string): Promise<IndustryRecord | 
   const industries = await getIndustries();
   return industries.find((industry) => industry.slug === slug) ?? null;
 }
+
+export async function getFeaturedIndustries(): Promise<IndustryRecord[]> {
+  const industries = await getIndustries();
+  return industries.slice(0, 8);
+}

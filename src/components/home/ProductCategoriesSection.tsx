@@ -12,7 +12,19 @@ import * as Icons from "lucide-react";
 import { PRODUCT_CATEGORIES_HOMEPAGE } from "@/constants/homepage";
 import { COLORS } from "@/constants";
 
-export function ProductCategoriesSection() {
+type ProductCategoryCard = {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  href: string;
+};
+
+type ProductCategoriesSectionProps = {
+  categories?: ProductCategoryCard[];
+};
+
+export function ProductCategoriesSection({ categories = PRODUCT_CATEGORIES_HOMEPAGE }: ProductCategoriesSectionProps) {
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -60,7 +72,7 @@ export function ProductCategoriesSection() {
           whileInView="visible"
           viewport={{ once: true }}
         >
-          {PRODUCT_CATEGORIES_HOMEPAGE.map((category) => (
+          {categories.map((category) => (
             <Link
               key={category.id}
               href={category.href}
