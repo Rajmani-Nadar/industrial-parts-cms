@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { GalleryGrid } from "@/components/gallery/GalleryGrid";
 import { GalleryHero } from "@/components/gallery/GalleryHero";
 import { generatePageMetadata } from "@/lib/seo";
+import { getGalleryItems, getGalleryFilters } from "@/services/gallery";
 
 export const metadata: Metadata = generatePageMetadata({
   title: "Industrial Gallery",
@@ -19,11 +20,13 @@ export const metadata: Metadata = generatePageMetadata({
   author: "Industrial",
 });
 
-export default function GalleryPage() {
+export default async function GalleryPage() {
+  const [items, filters] = await Promise.all([getGalleryItems(), getGalleryFilters()]);
+
   return (
     <div className="bg-slate-50 pb-20">
       <GalleryHero />
-      <GalleryGrid />
+      <GalleryGrid items={items} filters={filters} />
 
       <section className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
         <div className="mb-6 text-2xl font-black text-slate-900">Video showcase</div>

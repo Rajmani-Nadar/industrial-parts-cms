@@ -5,10 +5,11 @@ import { BlogHero } from "@/components/blog/BlogHero";
 import { BlogCard } from "@/components/blog/BlogCard";
 import { FeaturedBlog } from "@/components/blog/FeaturedBlog";
 import { BLOG_ARTICLES, blogCategories } from "@/data/blogs";
+import type { BlogArticle } from "@/types/blog";
 
 const PAGE_SIZE = 6;
 
-export function BlogPageContent() {
+export function BlogPageContent({ articles = BLOG_ARTICLES, categories = blogCategories }: { articles?: BlogArticle[]; categories?: readonly string[] }) {
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
@@ -16,7 +17,7 @@ export function BlogPageContent() {
   const filteredArticles = useMemo(() => {
     const normalized = searchTerm.trim().toLowerCase();
 
-    return BLOG_ARTICLES.filter((article) => {
+    return articles.filter((article) => {
       const matchesCategory = activeCategory === "All" || article.category === activeCategory;
       const matchesSearch =
         !normalized ||
@@ -28,12 +29,12 @@ export function BlogPageContent() {
     });
   }, [activeCategory, searchTerm]);
 
-  const featuredArticle = BLOG_ARTICLES.find((article) => article.featured) ?? BLOG_ARTICLES[0];
+  const featuredArticle = articles.find((article) => article.featured) ?? articles[0];
   const totalPages = Math.max(1, Math.ceil(filteredArticles.length / PAGE_SIZE));
 
   const paginatedArticles = filteredArticles.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  const categories = ["All", ...blogCategories];
+  const availableCategories = ["All", ...categories];
 
   return (
     <div className="bg-slate-50 pb-20">
@@ -50,7 +51,7 @@ export function BlogPageContent() {
 
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex flex-wrap gap-3">
-          {categories.map((category) => (
+          {availableCategories.map((category) => (
             <button
               key={category}
               type="button"

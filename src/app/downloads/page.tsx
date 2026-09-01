@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DownloadsPageContent } from "@/components/downloads/DownloadsPageContent";
 import { generatePageMetadata } from "@/lib/seo";
+import { getDownloads, getDownloadCategories } from "@/services/downloads";
 
 export const metadata: Metadata = generatePageMetadata({
   title: "Technical Resources & Downloads",
@@ -18,6 +19,7 @@ export const metadata: Metadata = generatePageMetadata({
   author: "Industrial",
 });
 
-export default function DownloadsPage() {
-  return <DownloadsPageContent />;
+export default async function DownloadsPage() {
+  const [documents, categories] = await Promise.all([getDownloads(), getDownloadCategories()]);
+  return <DownloadsPageContent documents={documents} categories={["All", ...categories]} />;
 }

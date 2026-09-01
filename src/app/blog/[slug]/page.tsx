@@ -7,16 +7,17 @@ import { AuthorCard } from "@/components/blog/AuthorCard";
 import { ReadingProgress } from "@/components/blog/ReadingProgress";
 import { RelatedArticles } from "@/components/blog/RelatedArticles";
 import { TableOfContents } from "@/components/blog/TableOfContents";
-import { BLOG_ARTICLES, getBlogArticleBySlug } from "@/data/blogs";
 import { generatePageMetadata } from "@/lib/seo";
+import { getBlogs, getBlogBySlug } from "@/services/blogs";
 
 export async function generateStaticParams() {
-  return BLOG_ARTICLES.map((article) => ({ slug: article.slug }));
+  const articles = await getBlogs();
+  return articles.map((article) => ({ slug: article.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const article = getBlogArticleBySlug(slug);
+  const article = await getBlogBySlug(slug);
 
   if (!article) {
     return generatePageMetadata({
@@ -42,13 +43,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function BlogDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const article = getBlogArticleBySlug(slug);
+  const article = await getBlogBySlug(slug);
 
   if (!article) {
     notFound();
   }
 
-  const relatedArticles = BLOG_ARTICLES.filter((item) => item.slug !== article.slug).slice(0, 3);
+  const relatedArticles = (await getBlogs()).filter((item) => item.slug !== article.slug).slice(0, 3);
 
   return (
     <>
@@ -78,7 +79,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
               <div className="mt-6 flex items-center justify-between gap-4 border-b border-slate-200 pb-6">
                 <div className="flex items-center gap-4">
                   <div className="relative h-12 w-12 overflow-hidden rounded-full border border-slate-200">
-                    <Image src={article.author.avatar} alt={article.author.name} fill className="object-cover" sizes="48px" />
+                    <Image src={article.author.avatar ?? "/products/placeholder.jpg"} alt={article.author.name} fill className="object-cover" sizes="48px" />
                   </div>
                   <div>
                     <div className="font-semibold text-slate-900">{article.author.name}</div>

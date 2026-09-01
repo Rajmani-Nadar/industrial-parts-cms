@@ -5,15 +5,16 @@ import { DownloadCard } from "@/components/downloads/DownloadCard";
 import { DownloadCategoryTabs } from "@/components/downloads/DownloadCategoryTabs";
 import { DownloadsHero } from "@/components/downloads/DownloadsHero";
 import { DOWNLOADS, DOWNLOAD_CATEGORIES } from "@/data/downloads";
+import type { DownloadDocument } from "@/types/download";
 
-export function DownloadsPageContent() {
+export function DownloadsPageContent({ documents = DOWNLOADS, categories = ["All", ...DOWNLOAD_CATEGORIES] }: { documents?: DownloadDocument[]; categories?: string[] }) {
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredDownloads = useMemo(() => {
     const phrase = searchTerm.trim().toLowerCase();
 
-    return DOWNLOADS.filter((item) => {
+    return documents.filter((item) => {
       const matchesCategory = activeCategory === "All" || item.category === activeCategory;
       const matchesSearch =
         !phrase ||
@@ -26,8 +27,6 @@ export function DownloadsPageContent() {
       return matchesCategory && matchesSearch;
     });
   }, [activeCategory, searchTerm]);
-
-  const categories = ["All", ...DOWNLOAD_CATEGORIES];
 
   return (
     <div className="bg-slate-50 pb-20">

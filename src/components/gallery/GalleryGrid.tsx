@@ -5,17 +5,18 @@ import Image from "next/image";
 import { useMemo, useState } from "react";
 import { GALLERY_FILTERS, type GalleryCategory, GALLERY_ITEMS } from "@/data/gallery";
 import { LightboxModal } from "@/components/gallery/LightboxModal";
+import type { GalleryItem } from "@/types/gallery";
 
 const columnClasses = ["md:col-span-2", "", "", "md:col-span-2", "", "", "md:col-span-2"]; 
 
-export function GalleryGrid() {
-  const [activeFilter, setActiveFilter] = useState<GalleryCategory | "All">("All");
+export function GalleryGrid({ items = GALLERY_ITEMS, filters = GALLERY_FILTERS }: { items?: GalleryItem[]; filters?: readonly string[] }) {
+  const [activeFilter, setActiveFilter] = useState<string>("All");
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const filteredItems = useMemo(() => {
-    if (activeFilter === "All") return GALLERY_ITEMS;
-    return GALLERY_ITEMS.filter((item) => item.category === activeFilter);
-  }, [activeFilter]);
+    if (activeFilter === "All") return items;
+    return items.filter((item) => item.category === activeFilter);
+  }, [activeFilter, items]);
 
   const selectedItem = selectedIndex !== null ? filteredItems[selectedIndex] ?? null : null;
 
@@ -35,7 +36,7 @@ export function GalleryGrid() {
   return (
     <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
       <div className="mb-8 flex flex-wrap gap-3">
-        {(["All", ...GALLERY_FILTERS] as const).map((filter) => {
+        {(["All", ...filters] as const).map((filter) => {
           const isActive = activeFilter === filter;
           return (
             <button

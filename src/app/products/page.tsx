@@ -4,16 +4,15 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Filter, Search, SlidersHorizontal, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { PRODUCT_APPLICATIONS, PRODUCT_BRANDS, PRODUCT_CATEGORIES, PRODUCTS } from "@/data/products";
 import { RFQButton } from "@/components/products/RFQButton";
 import { EmptyState } from "@/components/products/EmptyState";
 import type { Product } from "@/types/product";
 import { filterProducts, getApplications, getAvailabilityOptions, getCategories, getEngineBrands } from "@/lib/product-utils";
 
-export default function ProductsPage() {
+export default function ProductsPage({ initialProducts }: { initialProducts?: Product[] }) {
   return (
     <Suspense fallback={<ProductsPageFallback />}>
-      <ProductsPageContent />
+      <ProductsPageContent initialProducts={initialProducts ?? []} />
     </Suspense>
   );
 }
@@ -51,19 +50,25 @@ const slugifyCategory = (value: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
-const resolveCategoryFromQuery = (value: string | null) => {
+const resolveCategoryFromQuery = (value: string | null, categoryChoices: readonly string[]) => {
   if (!value) return "All";
 
   const normalized = decodeURIComponent(value).trim();
-  const match = categoryOptions.find((category) => slugifyCategory(category) === normalized.toLowerCase());
+  const match = categoryChoices.find((category) => slugifyCategory(category) === normalized.toLowerCase());
   return match ?? "All";
 };
 
-function ProductsPageContent() {
+function ProductsPageContent({ initialProducts }: { initialProducts: Product[] }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const productCatalog = initialProducts.length > 0 ? initialProducts : [];
+  const categoryOptions = useMemo(() => ["All", ...new Set(productCatalog.map((product) => product.category))], [productCatalog]);
+  const brandOptions = useMemo(() => ["All", ...new Set(productCatalog.map((product) => product.brand))], [productCatalog]);
+  const applicationOptions = useMemo(() => ["All", ...new Set(productCatalog.flatMap((product) => product.applications))], [productCatalog]);
+  const availabilityOptions = useMemo(() => ["All", ...getAvailabilityOptions()], [productCatalog]);
+
   const [search, setSearch] = useState(searchParams.get("q") ?? "");
-  const [selectedCategory, setSelectedCategory] = useState(() => resolveCategoryFromQuery(searchParams.get("category")));
+  const [selectedCategory, setSelectedCategory] = useState(() => resolveCategoryFromQuery(searchParams.get("category"), categoryOptions));
   const [selectedBrand, setSelectedBrand] = useState(searchParams.get("brand") ?? "All");
   const [selectedApplication, setSelectedApplication] = useState(searchParams.get("application") ?? "All");
   const [selectedAvailability, setSelectedAvailability] = useState(searchParams.get("availability") ?? "All");
@@ -94,9 +99,9 @@ function ProductsPageContent() {
           availability: selectedAvailability,
           sort: sortBy,
         },
-        PRODUCTS,
+        productCatalog,
       ),
-    [search, selectedCategory, selectedBrand, selectedApplication, selectedAvailability, sortBy],
+    [productCatalog, search, selectedCategory, selectedBrand, selectedApplication, selectedAvailability, sortBy],
   );
 
   const clearFilters = () => {
@@ -181,6 +186,10 @@ function ProductsPageContent() {
               onApplicationChange={setSelectedApplication}
               onAvailabilityChange={setSelectedAvailability}
               onReset={clearFilters}
+              categoryOptions={categoryOptions}
+              brandOptions={brandOptions}
+              applicationOptions={applicationOptions}
+              availabilityOptions={availabilityOptions}
             />
           </aside>
 
@@ -246,6 +255,10 @@ function ProductsPageContent() {
                   clearFilters();
                   setMobileFiltersOpen(false);
                 }}
+                categoryOptions={categoryOptions}
+                brandOptions={brandOptions}
+                applicationOptions={applicationOptions}
+                availabilityOptions={availabilityOptions}
               />
             </motion.aside>
           </motion.div>
@@ -265,6 +278,10 @@ function ProductFilters({
   onApplicationChange,
   onAvailabilityChange,
   onReset,
+  categoryOptions,
+  brandOptions,
+  applicationOptions,
+  availabilityOptions,
 }: {
   selectedCategory: string;
   selectedBrand: string;
@@ -275,6 +292,10 @@ function ProductFilters({
   onApplicationChange: (value: string) => void;
   onAvailabilityChange: (value: string) => void;
   onReset: () => void;
+  categoryOptions: readonly string[];
+  brandOptions: readonly string[];
+  applicationOptions: readonly string[];
+  availabilityOptions: readonly string[];
 }) {
   const filterGroups = [
     {

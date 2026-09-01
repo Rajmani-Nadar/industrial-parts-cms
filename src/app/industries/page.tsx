@@ -5,6 +5,7 @@ import { Breadcrumbs } from "@/components/products/Breadcrumbs";
 import { generatePageMetadata } from "@/lib/seo";
 import { SectionHeading, StatCard } from "@/components/about/Shared";
 import { IndustryCard } from "@/components/industries/IndustryCard";
+import { getIndustries } from "@/services/industries";
 
 export const metadata: Metadata = generatePageMetadata({
   title: "Industries",
@@ -21,73 +22,6 @@ export const metadata: Metadata = generatePageMetadata({
   type: "website",
   author: "Industrial",
 });
-
-const industries = [
-  {
-    title: "Commercial Trucks",
-    description: "Reliable engine and brake solutions for high-mileage transport fleets and logistics operations.",
-    image: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=1200&q=80",
-    products: ["Engine Braking", "Bleeder Brakes", "Sensors"],
-    applications: ["Long-haul freight", "Fleet maintenance", "Transport hubs"],
-    href: "/products?category=engine-braking-systems",
-  },
-  {
-    title: "Diesel Generators",
-    description: "Power equipment support for standby, backup, and critical generation systems.",
-    image: "https://images.unsplash.com/photo-1581092921461-eab62e97a780?auto=format&fit=crop&w=1200&q=80",
-    products: ["Generator Accessories", "AVR Modules", "ATS Controllers"],
-    applications: ["Mission-critical power", "Industrial backup", "Utility support"],
-    href: "/products?category=generator-accessories",
-  },
-  {
-    title: "Marine Engines",
-    description: "Corrosion-resistant and durable components for marine propulsion and auxiliary systems.",
-    image: "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=1200&q=80",
-    products: ["Heavy Duty Components", "Sensors", "Spare Parts"],
-    applications: ["Marine propulsion", "Commercial vessels", "Offshore support"],
-    href: "/products?category=heavy-duty-components",
-  },
-  {
-    title: "Mining Equipment",
-    description: "Extreme-duty parts engineered for severe operating conditions and continuous output.",
-    image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1200&q=80",
-    products: ["Diesel Spare Parts", "Heavy Duty Components", "Wiring Harnesses"],
-    applications: ["Open-pit mining", "Haul trucks", "Material handling"],
-    href: "/products?category=diesel-engine-spare-parts",
-  },
-  {
-    title: "Construction Machinery",
-    description: "Durable, reliability-focused components optimized for earthmoving and heavy-duty plant.",
-    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80",
-    products: ["Bleeder Brakes", "Spare Parts", "Sensors"],
-    applications: ["Excavators", "Bulldozers", "Crushers"],
-    href: "/products?category=bleeder-brakes",
-  },
-  {
-    title: "Agriculture Equipment",
-    description: "Performance parts for tractors and agricultural systems working in demanding field conditions.",
-    image: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1200&q=80",
-    products: ["Engine Braking", "Spare Parts", "Sensors"],
-    applications: ["Tractors", "Harvesters", "Irrigation systems"],
-    href: "/products?category=engine-braking-systems",
-  },
-  {
-    title: "Public Transportation",
-    description: "Dependable components for reliable movement in urban and intercity transit networks.",
-    image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1200&q=80",
-    products: ["ATS Controllers", "AVR Modules", "Sensors"],
-    applications: ["Urban buses", "Rail support", "Transit depots"],
-    href: "/products?category=ats-controllers",
-  },
-  {
-    title: "Industrial Power Plants",
-    description: "Generator, switchgear and powersupport components for continuous plant operation.",
-    image: "https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&w=1200&q=80",
-    products: ["ATS Controllers", "AVR Modules", "Generator Accessories"],
-    applications: ["Power generation", "Distribution", "Utilities"],
-    href: "/products?category=avr-modules",
-  },
-];
 
 const detailSections = [
   {
@@ -106,7 +40,17 @@ const detailSections = [
   },
 ];
 
-export default function IndustriesPage() {
+export default async function IndustriesPage() {
+  const industries = await getIndustries();
+  const mappedIndustries = industries.map((industry) => ({
+    title: industry.name,
+    description: industry.description,
+    image: industry.coverImage,
+    products: industry.products.length > 0 ? industry.products : ["Industrial Support", "Critical Components"],
+    applications: industry.products.length > 0 ? industry.products : ["Mission-critical operations", "Heavy-duty uptime"],
+    href: `/products?category=${encodeURIComponent(industry.slug)}`,
+  }));
+
   return (
     <div className="bg-slate-50">
       <section className="relative overflow-hidden bg-slate-950">
@@ -140,7 +84,7 @@ export default function IndustriesPage() {
           description="Our product range supports mission-critical power and transport environments across multiple sectors."
         />
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {industries.map((industry) => (
+          {mappedIndustries.map((industry) => (
             <IndustryCard key={industry.title} item={industry} />
           ))}
         </div>

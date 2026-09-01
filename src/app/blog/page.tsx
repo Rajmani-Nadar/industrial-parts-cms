@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { BlogPageContent } from "@/components/blog/BlogPageContent";
 import { generatePageMetadata } from "@/lib/seo";
+import { getBlogs, getBlogCategories } from "@/services/blogs";
 
 export const metadata: Metadata = generatePageMetadata({
   title: "Industrial Insights & Technical Resources",
@@ -19,6 +20,7 @@ export const metadata: Metadata = generatePageMetadata({
   author: "Industrial",
 });
 
-export default function BlogPage() {
-  return <BlogPageContent />;
+export default async function BlogPage() {
+  const [articles, categories] = await Promise.all([getBlogs(), getBlogCategories()]);
+  return <BlogPageContent articles={articles} categories={categories} />;
 }

@@ -2,20 +2,21 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowDownToLine, FileText, MessageCircle, Phone, ShieldCheck, Star, Truck, Wrench } from "lucide-react";
-import { APPLICATION_CARDS, PRODUCTS } from "@/data/products";
+import { APPLICATION_CARDS } from "@/data/products";
 import { Breadcrumbs } from "@/components/products/Breadcrumbs";
 import { RFQButton } from "@/components/products/RFQButton";
-import { getProductBySlug, getRelatedProducts } from "@/lib/product-utils";
+import { getProductBySlug, getProducts } from "@/services/products";
 
 const featureIcons = [ShieldCheck, Wrench, Truck, Star];
 
 export async function generateStaticParams() {
-  return PRODUCTS.map((product) => ({ slug: product.slug }));
+  const products = await getProducts();
+  return products.map((product) => ({ slug: product.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getProductBySlug(slug);
 
   if (!product) {
     return {
@@ -57,13 +58,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getProductBySlug(slug);
 
   if (!product) {
     notFound();
   }
 
-  const relatedProducts = getRelatedProducts(product, 4);
+  const relatedProducts = (await getProducts())
+    .filter((item) => item.category === product.category && item.slug !== product.slug)
+    .slice(0, 4);
 
   return (
     <div className="bg-slate-50 pb-20 pt-28">
