@@ -168,7 +168,7 @@ export function CTASection({
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
             <Link
-              href="mailto:sales@industrialcomponents.com?subject=Request%20for%20Quote"
+              href="/request-quote"
               className="inline-flex items-center justify-center rounded-xl bg-orange-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-900/30 transition hover:bg-orange-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300"
             >
               {primaryLabel}

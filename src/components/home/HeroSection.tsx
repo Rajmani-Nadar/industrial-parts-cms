@@ -5,9 +5,11 @@
 
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { COLORS } from "@/constants";
+import { buildRFQLink } from "@/lib/rfq";
 
 export function HeroSection() {
   const containerVariants = {
@@ -127,25 +129,27 @@ export function HeroSection() {
           className="flex flex-col sm:flex-row gap-4 justify-center mb-12"
           variants={itemVariants}
         >
-          <motion.button
-            className="px-8 py-4 rounded-lg font-semibold text-white transition-all"
-            style={{ backgroundColor: COLORS.orange[500] }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Request a Quote
-          </motion.button>
-          <motion.button
-            className="px-8 py-4 rounded-lg font-semibold border-2 transition-all text-white"
-            style={{
-              borderColor: COLORS.orange[500],
-              color: "white",
-            }}
-            whileHover={{ backgroundColor: COLORS.orange[500] + "20" }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Explore Products
-          </motion.button>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Link
+              href={buildRFQLink()}
+              className="inline-flex items-center justify-center px-8 py-4 rounded-lg font-semibold text-white transition-all"
+              style={{ backgroundColor: COLORS.orange[500] }}
+            >
+              Request a Quote
+            </Link>
+          </motion.div>
+          <motion.div whileHover={{ backgroundColor: COLORS.orange[500] + "20" }} whileTap={{ scale: 0.95 }}>
+            <Link
+              href="/products"
+              className="inline-flex items-center justify-center px-8 py-4 rounded-lg font-semibold border-2 transition-all text-white"
+              style={{
+                borderColor: COLORS.orange[500],
+                color: "white",
+              }}
+            >
+              Explore Products
+            </Link>
+          </motion.div>
         </motion.div>
 
         {/* Scroll Indicator */}

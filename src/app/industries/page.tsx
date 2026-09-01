@@ -125,7 +125,7 @@ export default function IndustriesPage() {
                 Browse Products
                 <ArrowRight className="h-4 w-4" />
               </a>
-              <a href="/contact" className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
+              <a href="/request-quote" className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
                 Request Quote
               </a>
             </div>
@@ -190,7 +190,7 @@ export default function IndustriesPage() {
           <h2 className="mt-6 text-3xl font-black md:text-5xl">Need components for your industry?</h2>
           <p className="mt-4 text-lg text-sky-100">Connect with our engineering support team to find the right industrial solution for your project.</p>
           <div className="mt-8 flex justify-center gap-4">
-            <a href="mailto:sales@industrialcomponents.com?subject=Request%20for%20Quote" className="rounded-xl bg-orange-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-orange-400">
+            <a href="/request-quote" className="rounded-xl bg-orange-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-orange-400">
               Request Quote
             </a>
           </div>

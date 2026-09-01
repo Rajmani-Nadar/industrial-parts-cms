@@ -5,9 +5,11 @@
 
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { COLORS } from "@/constants";
+import { buildRFQLink } from "@/lib/rfq";
 
 export function FinalCTASection() {
   const containerVariants = {
@@ -91,23 +93,25 @@ export function FinalCTASection() {
               className="flex flex-col sm:flex-row gap-4 justify-center"
               variants={itemVariants}
             >
-              <motion.button
-                className="group px-8 py-4 rounded-lg font-semibold text-white flex items-center justify-center space-x-2 transition-all"
-                style={{ backgroundColor: COLORS.orange[500] }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <span>Get a Quote</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </motion.button>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Link
+                  href={buildRFQLink()}
+                  className="group inline-flex items-center justify-center px-8 py-4 rounded-lg font-semibold text-white space-x-2 transition-all"
+                  style={{ backgroundColor: COLORS.orange[500] }}
+                >
+                  <span>Get a Quote</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </motion.div>
 
-              <motion.button
-                className="px-8 py-4 rounded-lg font-semibold border-2 border-white text-white hover:bg-white hover:text-navy-500 transition-all"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Explore Products
-              </motion.button>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Link
+                  href="/products"
+                  className="inline-flex items-center justify-center px-8 py-4 rounded-lg font-semibold border-2 border-white text-white hover:bg-white hover:text-navy-500 transition-all"
+                >
+                  Explore Products
+                </Link>
+              </motion.div>
             </motion.div>
 
             {/* Trust Badges */}
