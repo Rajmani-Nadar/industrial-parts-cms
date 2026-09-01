@@ -10,6 +10,23 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export function resolveMediaUrl(value?: string | null, fallback = "/products/placeholder.jpg"): string {
+  if (!value || value.trim() === "") {
+    return fallback;
+  }
+
+  if (value.startsWith("http://") || value.startsWith("https://") || value.startsWith("data:")) {
+    return value;
+  }
+
+  if (value.startsWith("/")) {
+    return value;
+  }
+
+  const baseUrl = (process.env.NEXT_PUBLIC_STRAPI_URL ?? "http://localhost:1337").replace(/\/$/, "");
+  return `${baseUrl}/${value.replace(/^\//, "")}`;
+}
+
 /**
  * Format date to readable string
  */

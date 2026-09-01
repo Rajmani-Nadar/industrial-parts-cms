@@ -4,15 +4,21 @@ import type { CSSProperties } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Mail, Phone, MapPin } from "lucide-react";
-import { FOOTER_LINKS, SOCIAL_LINKS, COLORS } from "@/constants";
+import { FOOTER_LINKS, COLORS } from "@/constants";
+import type { CompanySettings } from "@/types/company";
 
 /**
  * Footer Component
  * Premium enterprise footer with multiple sections, links, and contact information
  */
 
-export function Footer() {
+type FooterProps = {
+  company?: CompanySettings;
+};
+
+export function Footer({ company }: FooterProps) {
   const currentYear = new Date().getFullYear();
+  const socialLinks = company?.socialLinks ?? [];
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -45,10 +51,14 @@ export function Footer() {
           <motion.div variants={itemVariants} className="lg:col-span-1">
             <div className="flex items-center space-x-2 mb-4">
               <div
-                className="w-10 h-10 rounded-lg"
+                className="w-10 h-10 rounded-lg overflow-hidden"
                 style={{ backgroundColor: COLORS.orange[500] }}
-              />
-              <span className="text-xl font-bold">Industrial</span>
+              >
+                {company?.navbarLogo ? (
+                  <img src={company.navbarLogo} alt={company.companyName} className="h-full w-full object-cover" />
+                ) : null}
+              </div>
+              <span className="text-xl font-bold">{company?.companyName ?? "Industrial"}</span>
             </div>
             <p className="text-gray-400 text-sm mb-6">
               Enterprise industrial automation and control solutions for modern
@@ -58,22 +68,22 @@ export function Footer() {
             {/* Contact Info */}
             <div className="space-y-3">
               <a
-                href="mailto:hello@industrial.com"
+                href={`mailto:${company?.email ?? "hello@industrial.com"}`}
                 className="flex items-center space-x-2 text-gray-400 hover:text-orange-500 transition-colors"
               >
                 <Mail className="w-4 h-4" />
-                <span className="text-sm">hello@industrial.com</span>
+                <span className="text-sm">{company?.email ?? "hello@industrial.com"}</span>
               </a>
               <a
-                href="tel:+1234567890"
+                href={`tel:${company?.phone ?? "+1234567890"}`}
                 className="flex items-center space-x-2 text-gray-400 hover:text-orange-500 transition-colors"
               >
                 <Phone className="w-4 h-4" />
-                <span className="text-sm">+1 (234) 567-890</span>
+                <span className="text-sm">{company?.phone ?? "+1 (234) 567-890"}</span>
               </a>
               <div className="flex items-center space-x-2 text-gray-400">
                 <MapPin className="w-4 h-4" />
-                <span className="text-sm">San Francisco, CA</span>
+                <span className="text-sm">{company?.address ?? "San Francisco, CA"}</span>
               </div>
             </div>
           </motion.div>
@@ -101,10 +111,10 @@ export function Footer() {
           <motion.div variants={itemVariants}>
             <h3 className="font-semibold text-white mb-4">Follow Us</h3>
             <div className="flex space-x-4">
-              {SOCIAL_LINKS.map((social) => (
+              {socialLinks.length > 0 ? socialLinks.map((social) => (
                 <motion.a
                   key={social.platform}
-                  href={social.href}
+                  href={social.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-full flex items-center justify-center transition-all"
@@ -113,13 +123,14 @@ export function Footer() {
                   title={social.platform}
                 >
                   <div className="w-5 h-5 flex items-center justify-center">
-                    {/* Icon placeholder */}
                     <span className="text-xs font-bold">
                       {social.platform.charAt(0)}
                     </span>
                   </div>
                 </motion.a>
-              ))}
+              )) : (
+                <div className="text-sm text-gray-400">Connect with our team</div>
+              )}
             </div>
 
             {/* Newsletter Signup */}
@@ -157,7 +168,7 @@ export function Footer() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-gray-400 text-sm">
-              © {currentYear} Industrial. All rights reserved.
+              {company?.footerCopyright ?? `© ${currentYear} Industrial. All rights reserved.`}
             </p>
             <div className="flex space-x-6 text-sm">
               <Link href="/privacy" className="text-gray-400 hover:text-white">

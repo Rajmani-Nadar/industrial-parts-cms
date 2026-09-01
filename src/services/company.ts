@@ -1,4 +1,5 @@
 ﻿import { fetchAPI } from "@/lib/fetchAPI";
+import { resolveMediaUrl } from "@/lib/utils";
 import type { CompanySettings, StrapiCompanyEntry } from "@/types/company";
 
 const FALLBACK_COMPANY: CompanySettings = {
@@ -22,6 +23,7 @@ const FALLBACK_COMPANY: CompanySettings = {
 export async function getCompanySettings(): Promise<CompanySettings> {
   const response = await fetchAPI<{ data: Array<{ id: number | string; attributes: StrapiCompanyEntry }> }>('/company-settings', {
     populate: ['logo', 'navbarLogo'],
+    revalidate: 3600,
   });
 
   if (response?.data && Array.isArray(response.data) && response.data.length > 0) {
@@ -30,7 +32,7 @@ export async function getCompanySettings(): Promise<CompanySettings> {
       return {
         id: String(entry.id ?? 'company-settings'),
         companyName: entry.companyName ?? FALLBACK_COMPANY.companyName,
-        logo: entry.logo?.url ?? FALLBACK_COMPANY.logo,
+        logo: resolveMediaUrl(entry.logo?.url, FALLBACK_COMPANY.logo),
         phone: entry.phone ?? FALLBACK_COMPANY.phone,
         whatsappNumber: entry.whatsappNumber ?? FALLBACK_COMPANY.whatsappNumber,
         email: entry.email ?? FALLBACK_COMPANY.email,
@@ -42,7 +44,7 @@ export async function getCompanySettings(): Promise<CompanySettings> {
         })),
         heroCtaText: entry.heroCtaText ?? FALLBACK_COMPANY.heroCtaText,
         footerCopyright: entry.footerCopyright ?? FALLBACK_COMPANY.footerCopyright,
-        navbarLogo: entry.navbarLogo?.url ?? FALLBACK_COMPANY.navbarLogo,
+        navbarLogo: resolveMediaUrl(entry.navbarLogo?.url, FALLBACK_COMPANY.navbarLogo),
       };
     }
   }

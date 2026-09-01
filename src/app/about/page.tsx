@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AboutPageContent } from "@/components/about/AboutPageContent";
 import { generatePageMetadata } from "@/lib/seo";
+import { getCompanySettings } from "@/services/company";
 
 export const metadata: Metadata = generatePageMetadata({
   title: "About",
@@ -19,6 +20,7 @@ export const metadata: Metadata = generatePageMetadata({
   author: "Industrial",
 });
 
-export default function AboutPage() {
-  return <AboutPageContent />;
+export default async function AboutPage() {
+  const company = await getCompanySettings();
+  return <AboutPageContent company={company} />;
 }

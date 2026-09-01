@@ -16,6 +16,31 @@ interface PageMetadataProps {
   updated?: string;
 }
 
+export function buildCompanyMetadata(companyName: string, description: string, image?: string, url = "https://industrial.com"):
+  Partial<Metadata> {
+  const fallbackTitle = `${companyName} | Industrial`;
+  return {
+    title: {
+      default: companyName,
+      template: `%s | ${companyName}`,
+    },
+    description,
+    openGraph: {
+      title: fallbackTitle,
+      description,
+      url,
+      siteName: companyName,
+      images: image ? [{ url: image, width: 1200, height: 630, alt: companyName }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: fallbackTitle,
+      description,
+      images: image ? [image] : undefined,
+    },
+  };
+}
+
 export function generatePageMetadata(props: PageMetadataProps): Metadata {
   const {
     title,

@@ -8,6 +8,7 @@ export type FetchAPIOptions = Omit<RequestInit, "body"> & {
   sort?: string | string[];
   filters?: Record<string, string | number | boolean | null | undefined>;
   fields?: string | string[];
+  revalidate?: number;
 };
 
 export type StrapiCollectionResponse<T> = {
@@ -91,7 +92,7 @@ export async function fetchAPI<T>(endpoint: string, options: FetchAPIOptions = {
       method,
       headers,
       body,
-      next: { revalidate: 3600 },
+      next: { revalidate: options.revalidate ?? 3600 },
     });
 
     if (!response.ok) {

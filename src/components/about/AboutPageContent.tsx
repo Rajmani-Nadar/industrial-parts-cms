@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, Building2, Factory, Gauge, Handshake, ShieldCheck, Users } from "lucide-react";
 import { Breadcrumbs } from "@/components/products/Breadcrumbs";
 import { CTASection, FeatureChecklist, SectionHeading, StatCard, TimelineItem, WorldPresence } from "@/components/about/Shared";
+import type { CompanySettings } from "@/types/company";
 
 const milestones = [
   {
@@ -64,7 +65,11 @@ const team = [
   { name: "Technical Support Team", role: "Field guidance, application support, and spares", image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=900&q=80" },
 ];
 
-export function AboutPageContent() {
+type AboutPageContentProps = {
+  company?: CompanySettings;
+};
+
+export function AboutPageContent({ company }: AboutPageContentProps) {
   return (
     <div className="bg-slate-50">
       <section className="relative overflow-hidden bg-slate-950">
@@ -78,10 +83,10 @@ export function AboutPageContent() {
           <div className="max-w-3xl">
             <p className="mb-4 text-xs font-semibold uppercase tracking-[0.22em] text-orange-300">Industrial heritage</p>
             <h1 className="text-4xl font-black tracking-tight text-white md:text-6xl">
-              Engineering Performance. Delivering Reliability.
+              {company?.companyName ?? "Engineering Performance. Delivering Reliability."}
             </h1>
             <p className="mt-6 max-w-xl text-lg text-slate-200">
-              We design, manufacture, and deliver dependable industrial components for diesel engines, generator systems, and heavy-duty power applications.
+              {company?.address ? `${company.companyName} designs, manufactures, and delivers dependable industrial components for diesel engines, generator systems, and heavy-duty power applications.` : "We design, manufacture, and deliver dependable industrial components for diesel engines, generator systems, and heavy-duty power applications."}
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <a href="/products" className="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-900/30 transition hover:bg-orange-400">
@@ -108,7 +113,7 @@ export function AboutPageContent() {
               With decades of experience in engine braking systems, generator accessories, ATS controllers, AVR modules, and diesel engine components, we help industrial customers improve uptime, reliability, and operational efficiency.
             </p>
             <p className="mt-4 text-base leading-8 text-slate-600">
-              From OEM supply partnerships to export-ready industrial support, our teams combine engineering knowledge with disciplined manufacturing to provide components that stand up to demanding environments.
+              {company?.address ? `Based in ${company.address}, ${company.companyName} supports OEM supply partnerships and export-ready industrial demand with responsive technical expertise and disciplined manufacturing.` : "From OEM supply partnerships to export-ready industrial support, our teams combine engineering knowledge with disciplined manufacturing to provide components that stand up to demanding environments."}
             </p>
             <FeatureChecklist items={[
               "20+ Years Experience",

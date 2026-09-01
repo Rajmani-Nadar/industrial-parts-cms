@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { MAIN_NAV_ITEMS, MEGA_MENU } from "@/constants";
 import { COLORS } from "@/constants";
 import { PRODUCTS } from "@/data/products";
+import type { CompanySettings } from "@/types/company";
 
 /**
  * Navbar Component
@@ -21,7 +22,11 @@ import { PRODUCTS } from "@/data/products";
  * - Smooth animations with Framer Motion
  */
 
-export function Navbar() {
+type NavbarProps = {
+  company?: CompanySettings;
+};
+
+export function Navbar({ company }: NavbarProps) {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -293,10 +298,16 @@ export function Navbar() {
             href="/"
             className="flex items-center space-x-2 flex-shrink-0"
           >
-            <div
-              className="w-10 h-10 rounded-lg"
-              style={{ backgroundColor: COLORS.navy[500] }}
-            />
+            <div className="w-10 h-10 overflow-hidden rounded-lg bg-white/10 ring-1 ring-white/20">
+              {company?.navbarLogo ? (
+                <img src={company.navbarLogo} alt={company.companyName} className="h-full w-full object-cover" />
+              ) : (
+                <div
+                  className="h-full w-full rounded-lg"
+                  style={{ backgroundColor: COLORS.navy[500] }}
+                />
+              )}
+            </div>
             <span
               className="text-xl font-bold hidden sm:inline transition-colors duration-300"
               style={{
@@ -304,7 +315,7 @@ export function Navbar() {
                 textShadow: isScrolled ? "none" : "0 2px 4px rgba(0,0,0,0.3)",
               }}
             >
-              Industrial
+              {company?.companyName ?? "Industrial"}
             </span>
           </Link>
 
