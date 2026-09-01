@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import * as Icons from "lucide-react";
 import { Menu, X, ChevronDown, ArrowRight } from "lucide-react";
@@ -21,10 +22,21 @@ import { PRODUCTS } from "@/data/products";
  */
 
 export function Navbar() {
+  const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
   const navRef = useRef<HTMLDivElement>(null);
+
+  const isNavItemActive = (href: string) => {
+    if (href === "/products") return pathname === "/products" || pathname.startsWith("/products/");
+    if (href === "/solutions") return pathname === "/solutions" || pathname.startsWith("/solutions/");
+    if (href === "/resources") return pathname === "/resources" || pathname.startsWith("/resources/");
+    if (href === "/industries") return pathname === "/industries";
+    if (href === "/about") return pathname === "/about";
+    if (href === "/contact") return pathname === "/contact";
+    return pathname === href;
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -108,7 +120,7 @@ export function Navbar() {
 
                   return (
                     <Link
-                      key={item.href}
+                      key={`${menuKey}-${item.label}-${item.href}`}
                       href={item.href}
                       className="group rounded-xl border border-slate-200 bg-slate-50/60 p-3 transition-colors hover:border-orange-200 hover:bg-white"
                     >
@@ -185,7 +197,7 @@ export function Navbar() {
 
               return (
                 <Link
-                  key={item.href}
+                  key={`${menuKey}-${item.label}-${item.href}`}
                   href={item.href}
                   className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 transition-colors hover:border-orange-200 hover:bg-white"
                 >
@@ -219,7 +231,7 @@ export function Navbar() {
         <div className="grid gap-2">
           {menu.items.map((item) => (
             <Link
-              key={item.href}
+              key={`${menuKey}-${item.label}`}
               href={item.href}
               className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 hover:text-orange-600"
             >
@@ -268,51 +280,76 @@ export function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-1">
-            {MAIN_NAV_ITEMS.map((item) => (
-              <div key={item.href} className="relative group">
-                <button
-                  className={cn(
-                    "px-3 py-2 rounded-md text-sm font-medium transition-all",
-                    isScrolled
-                      ? "text-gray-900 hover:bg-gray-100"
-                      : "text-white hover:bg-white/10"
-                  )}
-                  style={
-                    !isScrolled
-                      ? { textShadow: "0 2px 4px rgba(0,0,0,0.3)" }
-                      : {}
-                  }
-                  onMouseEnter={() => {
-                    if (
-                      item.label === "Products" ||
-                      item.label === "Solutions" ||
-                      item.label === "Resources"
-                    ) {
-                      setActiveMegaMenu(item.label.toLowerCase());
-                    }
-                  }}
-                  onMouseLeave={() => setActiveMegaMenu(null)}
-                >
-                  <span className="flex items-center space-x-1">
-                    <span>{item.label}</span>
-                    {(item.label === "Products" ||
-                      item.label === "Solutions" ||
-                      item.label === "Resources") && (
-                      <ChevronDown className="w-4 h-4" />
-                    )}
-                  </span>
-                </button>
+            {MAIN_NAV_ITEMS.map((item) => {
+              const isActive = isNavItemActive(item.href);
+              const isMegaMenuItem =
+                item.label === "Products" ||
+                item.label === "Solutions" ||
+                item.label === "Resources";
 
-                {(item.label === "Products" ||
-                  item.label === "Solutions" ||
-                  item.label === "Resources") && (
-                  <AnimatePresence>
-                    {activeMegaMenu === item.label.toLowerCase() &&
-                      renderMegaMenu(item.label.toLowerCase())}
-                  </AnimatePresence>
-                )}
-              </div>
-            ))}
+              return (
+                <div key={item.href} className="relative group">
+                  {isMegaMenuItem ? (
+                    <button
+                      type="button"
+                      className={cn(
+                        "px-3 py-2 rounded-md text-sm font-medium transition-all",
+                        isScrolled
+                          ? isActive
+                            ? "text-orange-600 bg-orange-50"
+                            : "text-gray-900 hover:bg-gray-100"
+                          : isActive
+                            ? "text-white bg-white/10"
+                            : "text-white hover:bg-white/10",
+                        "shadow-none"
+                      )}
+                      style={
+                        !isScrolled
+                          ? { textShadow: "0 2px 4px rgba(0,0,0,0.3)" }
+                          : {}
+                      }
+                      onMouseEnter={() => {
+                        setActiveMegaMenu(item.label.toLowerCase());
+                      }}
+                      onMouseLeave={() => setActiveMegaMenu(null)}
+                    >
+                      <span className="flex items-center space-x-1">
+                        <span>{item.label}</span>
+                        <ChevronDown className="w-4 h-4" />
+                      </span>
+                    </button>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        "inline-flex px-3 py-2 rounded-md text-sm font-medium transition-all",
+                        isScrolled
+                          ? isActive
+                            ? "text-orange-600 bg-orange-50"
+                            : "text-gray-900 hover:bg-gray-100"
+                          : isActive
+                            ? "text-white bg-white/10"
+                            : "text-white hover:bg-white/10"
+                      )}
+                      style={
+                        !isScrolled
+                          ? { textShadow: "0 2px 4px rgba(0,0,0,0.3)" }
+                          : {}
+                      }
+                    >
+                      {item.label}
+                    </Link>
+                  )}
+
+                  {isMegaMenuItem && (
+                    <AnimatePresence>
+                      {activeMegaMenu === item.label.toLowerCase() &&
+                        renderMegaMenu(item.label.toLowerCase())}
+                    </AnimatePresence>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
           {/* CTA Button + Mobile Menu Button */}
@@ -365,17 +402,26 @@ export function Navbar() {
               exit="exit"
             >
               <div className="px-4 py-4 space-y-2">
-                {MAIN_NAV_ITEMS.map((item) => (
-                  <div key={item.href}>
-                    <Link
-                      href={item.href}
-                      className="block px-3 py-2 rounded-md text-gray-900 hover:bg-gray-100 transition-colors"
-                      onClick={() => setIsMobileOpen(false)}
-                    >
-                      {item.label}
-                    </Link>
-                  </div>
-                ))}
+                {MAIN_NAV_ITEMS.map((item) => {
+                  const isActive = isNavItemActive(item.href);
+
+                  return (
+                    <div key={item.href}>
+                      <Link
+                        href={item.href}
+                        className={cn(
+                          "block px-3 py-2 rounded-md transition-colors",
+                          isActive
+                            ? "bg-orange-50 text-orange-600 font-semibold"
+                            : "text-gray-900 hover:bg-gray-100"
+                        )}
+                        onClick={() => setIsMobileOpen(false)}
+                      >
+                        {item.label}
+                      </Link>
+                    </div>
+                  );
+                })}
                 <button
                   className="w-full mt-4 px-4 py-2 rounded-lg font-medium"
                   style={{

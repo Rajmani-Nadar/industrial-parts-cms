@@ -33,6 +33,11 @@ export const MAIN_NAV_ITEMS: NavItemType[] = [
     description: "Industry-specific solutions",
   },
   {
+    label: "Industries",
+    href: "/industries",
+    description: "Industry applications and use cases",
+  },
+  {
     label: "Resources",
     href: "/resources",
     description: "Documentation and guides",
@@ -112,25 +117,25 @@ export const MEGA_MENU: Record<string, MegaMenuCategory> = {
     items: [
       {
         label: "Manufacturing",
-        href: "/solutions/manufacturing",
+        href: "/industries",
         description: "Smart factory solutions",
         icon: "Factory",
       },
       {
         label: "Logistics",
-        href: "/solutions/logistics",
+        href: "/industries",
         description: "Supply chain optimization",
         icon: "Truck",
       },
       {
         label: "Energy",
-        href: "/solutions/energy",
+        href: "/industries",
         description: "Power management systems",
         icon: "Zap",
       },
       {
         label: "Infrastructure",
-        href: "/solutions/infrastructure",
+        href: "/industries",
         description: "Critical infrastructure protection",
         icon: "Building2",
       },
@@ -144,28 +149,40 @@ export const MEGA_MENU: Record<string, MegaMenuCategory> = {
     title: "Resources",
     items: [
       {
-        label: "Documentation",
-        href: "/resources/docs",
-        description: "Technical documentation",
+        label: "Downloads",
+        href: "/downloads",
+        description: "Product documentation and downloads",
+        icon: "Download",
+      },
+      {
+        label: "Technical Blog",
+        href: "/blog",
+        description: "Insights, maintenance tips and product updates",
         icon: "BookOpen",
       },
       {
-        label: "API Reference",
-        href: "/resources/api",
-        description: "Integration guides",
-        icon: "Code",
-      },
-      {
-        label: "Case Studies",
-        href: "/resources/case-studies",
-        description: "Success stories from customers",
-        icon: "Briefcase",
-      },
-      {
-        label: "White Papers",
-        href: "/resources/white-papers",
-        description: "In-depth industry analysis",
+        label: "Installation Manuals",
+        href: "/downloads",
+        description: "Field setup and installation guidance",
         icon: "FileText",
+      },
+      {
+        label: "Product Catalogues",
+        href: "/downloads",
+        description: "Browse our industrial product range",
+        icon: "FolderOpen",
+      },
+      {
+        label: "Certifications",
+        href: "/certifications",
+        description: "Quality standards and compliance records",
+        icon: "ShieldCheck",
+      },
+      {
+        label: "FAQ",
+        href: "/#faq",
+        description: "Common product and support questions",
+        icon: "HelpCircle",
       },
     ],
     featured: {
@@ -181,9 +198,9 @@ export const FOOTER_LINKS = {
     title: "Company",
     links: [
       { label: "About Us", href: "/about" },
-      { label: "Careers", href: "/careers" },
+      { label: "Industries", href: "/industries" },
+      { label: "Contact", href: "/contact" },
       { label: "Blog", href: "/blog" },
-      { label: "Press", href: "/press" },
     ],
   },
   products: {
@@ -200,10 +217,10 @@ export const FOOTER_LINKS = {
   resources: {
     title: "Resources",
     links: [
-      { label: "Documentation", href: "/resources/docs" },
-      { label: "API Docs", href: "/resources/api" },
-      { label: "Support", href: "/support" },
-      { label: "Community", href: "/community" },
+      { label: "Downloads", href: "/downloads" },
+      { label: "Certifications", href: "/certifications" },
+      { label: "Documentation", href: "/downloads" },
+      { label: "Support", href: "/contact" },
     ],
   },
   legal: {
@@ -212,7 +229,7 @@ export const FOOTER_LINKS = {
       { label: "Privacy Policy", href: "/privacy" },
       { label: "Terms of Service", href: "/terms" },
       { label: "Cookie Policy", href: "/cookies" },
-      { label: "Compliance", href: "/compliance" },
+      { label: "Compliance", href: "/certifications" },
     ],
   },
 };
