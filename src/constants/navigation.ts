@@ -155,6 +155,12 @@ export const MEGA_MENU: Record<string, MegaMenuCategory> = {
         icon: "Download",
       },
       {
+        label: "Gallery",
+        href: "/gallery",
+        description: "Facility and product showcase imagery",
+        icon: "Images",
+      },
+      {
         label: "Technical Blog",
         href: "/blog",
         description: "Insights, maintenance tips and product updates",
@@ -162,15 +168,21 @@ export const MEGA_MENU: Record<string, MegaMenuCategory> = {
       },
       {
         label: "Installation Manuals",
-        href: "/downloads",
+        href: "/downloads?category=installation-manuals",
         description: "Field setup and installation guidance",
         icon: "FileText",
       },
       {
         label: "Product Catalogues",
-        href: "/downloads",
+        href: "/downloads?category=product-catalogues",
         description: "Browse our industrial product range",
         icon: "FolderOpen",
+      },
+      {
+        label: "Compatibility Charts",
+        href: "/downloads?category=compatibility-charts",
+        description: "Component and system compatibility references",
+        icon: "ChartNoAxesCombined",
       },
       {
         label: "Certifications",
@@ -218,9 +230,10 @@ export const FOOTER_LINKS = {
     title: "Resources",
     links: [
       { label: "Downloads", href: "/downloads" },
+      { label: "Gallery", href: "/gallery" },
+      { label: "Technical Blog", href: "/blog" },
       { label: "Certifications", href: "/certifications" },
-      { label: "Documentation", href: "/downloads" },
-      { label: "Support", href: "/contact" },
+      { label: "Contact Support", href: "/contact" },
     ],
   },
   legal: {

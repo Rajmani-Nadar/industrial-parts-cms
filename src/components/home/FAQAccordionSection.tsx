@@ -30,7 +30,7 @@ export function FAQAccordionSection() {
   };
 
   return (
-    <section className="py-20 px-4 bg-white">
+    <section id="faq" className="scroll-mt-24 py-20 px-4 bg-white">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <motion.div

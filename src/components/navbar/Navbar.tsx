@@ -31,7 +31,17 @@ export function Navbar() {
   const isNavItemActive = (href: string) => {
     if (href === "/products") return pathname === "/products" || pathname.startsWith("/products/");
     if (href === "/solutions") return pathname === "/solutions" || pathname.startsWith("/solutions/");
-    if (href === "/resources") return pathname === "/resources" || pathname.startsWith("/resources/");
+    if (href === "/resources")
+      return (
+        pathname === "/resources" ||
+        pathname.startsWith("/resources/") ||
+        pathname === "/downloads" ||
+        pathname.startsWith("/downloads/") ||
+        pathname === "/gallery" ||
+        pathname.startsWith("/gallery/") ||
+        pathname === "/blog" ||
+        pathname.startsWith("/blog/")
+      );
     if (href === "/industries") return pathname === "/industries";
     if (href === "/about") return pathname === "/about";
     if (href === "/contact") return pathname === "/contact";
@@ -46,6 +56,26 @@ export function Navbar() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const hash = window.location.hash;
+    if (!hash) return;
+
+    const targetId = hash.replace(/^#/, "");
+    if (!targetId) return;
+
+    const scrollToHash = () => {
+      const element = document.getElementById(targetId);
+      if (!element) return;
+
+      const top = element.getBoundingClientRect().top + window.scrollY - 96;
+      window.scrollTo({ top, behavior: "smooth" });
+    };
+
+    requestAnimationFrame(scrollToHash);
+  }, [pathname]);
 
   // Close mobile menu when clicking outside
   useEffect(() => {
