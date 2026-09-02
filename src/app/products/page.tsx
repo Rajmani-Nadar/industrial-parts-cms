@@ -300,25 +300,25 @@ function ProductFilters({
   const filterGroups = [
     {
       title: "Product Category",
-      items: ["All", ...categoryOptions],
+      items: [...new Set(["All", ...categoryOptions])],
       value: selectedCategory,
       onChange: onCategoryChange,
     },
     {
       title: "Engine Brand",
-      items: ["All", ...brandOptions],
+      items: [...new Set(["All", ...brandOptions])],
       value: selectedBrand,
       onChange: onBrandChange,
     },
     {
       title: "Application",
-      items: ["All", ...applicationOptions],
+      items: [...new Set(["All", ...applicationOptions])],
       value: selectedApplication,
       onChange: onApplicationChange,
     },
     {
       title: "Availability",
-      items: ["All", ...availabilityOptions],
+      items: [...new Set(["All", ...availabilityOptions])],
       value: selectedAvailability,
       onChange: onAvailabilityChange,
     },
@@ -341,8 +341,8 @@ function ProductFilters({
           <div key={group.title}>
             <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">{group.title}</h4>
             <div className="space-y-2">
-              {group.items.map((item) => (
-                <label key={`${group.title}-${item}`} className="flex cursor-pointer items-center gap-2 text-sm text-slate-600">
+              {group.items.map((item, index) => (
+                <label key={`${group.title}-${item}-${index}`} className="flex cursor-pointer items-center gap-2 text-sm text-slate-600">
                   <input
                     type="radio"
                     name={group.title}
