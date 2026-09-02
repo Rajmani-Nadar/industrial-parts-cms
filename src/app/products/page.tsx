@@ -342,7 +342,7 @@ function ProductFilters({
             <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">{group.title}</h4>
             <div className="space-y-2">
               {group.items.map((item) => (
-                <label key={item} className="flex cursor-pointer items-center gap-2 text-sm text-slate-600">
+                <label key={`${group.title}-${item}`} className="flex cursor-pointer items-center gap-2 text-sm text-slate-600">
                   <input
                     type="radio"
                     name={group.title}

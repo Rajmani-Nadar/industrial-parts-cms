@@ -69,6 +69,7 @@ function GlobeIcon({ className }: { className?: string }) {
 const initialFormState: ContactFormState = {
   name: "",
   email: "",
+  phone: "",
   company: "",
   message: "",
 };
@@ -94,7 +95,7 @@ export function ContactPageContent() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!formData.name || !formData.email || !formData.message) {
+    if (!formData.name || !formData.email || !formData.phone || !formData.message) {
       setSubmitStatus({
         type: "error",
         message: "Please complete the required fields before submitting.",
@@ -110,6 +111,7 @@ export function ContactPageContent() {
         name: formData.name,
         companyName: formData.company,
         email: formData.email,
+        phone: formData.phone,
         subject: "Website Contact Enquiry",
         message: formData.message,
       });
@@ -276,7 +278,20 @@ export function ContactPageContent() {
               />
             </label>
 
-            <label className="text-sm font-medium text-slate-700 md:col-span-2">
+            <label className="text-sm font-medium text-slate-700">
+              Phone Number
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                required
+                className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-800 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+                placeholder="+91 98765 43210"
+              />
+            </label>
+
+            <label className="text-sm font-medium text-slate-700">
               Company
               <input
                 type="text"

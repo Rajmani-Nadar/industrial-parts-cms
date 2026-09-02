@@ -21,14 +21,15 @@ const FALLBACK_COMPANY: CompanySettings = {
 };
 
 export async function getCompanySettings(): Promise<CompanySettings> {
-  const response = await fetchAPI<{ data: Array<{ id: number | string; attributes: StrapiCompanyEntry }> }>('/company-settings', {
-    populate: ['logo', 'navbarLogo'],
+  const response = await fetchAPI<{ data: { id: number | string; attributes: StrapiCompanyEntry } | null }>('/company-setting', {
+    populate: "*",
     revalidate: 3600,
   });
 
-  if (response?.data && Array.isArray(response.data) && response.data.length > 0) {
-    const entry = response.data[0]?.attributes;
-    if (entry) {
+  if (response?.data) {
+  const entry = response.data.attributes;
+
+  if (entry) {
       return {
         id: String(entry.id ?? 'company-settings'),
         companyName: entry.companyName ?? FALLBACK_COMPANY.companyName,

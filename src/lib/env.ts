@@ -13,7 +13,7 @@ export function getStrapiEnv(): StrapiEnvConfig {
   return {
     strapiUrl,
     apiToken,
-    hasConfig: Boolean(strapiUrl && apiToken),
+    hasConfig: Boolean(strapiUrl),
   };
 }
 
