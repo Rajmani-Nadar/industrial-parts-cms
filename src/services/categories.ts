@@ -32,7 +32,7 @@ const FALLBACK_CATEGORIES: Category[] = [
 ];
 
 export async function getCategories(): Promise<Category[]> {
-  const response = await fetchAPI<{ data: Array<{ id: number | string; attributes: StrapiCategoryEntry }> }>("/categories", {
+  const response = await fetchAPI<{ data: Array<{ id: number | string; attributes: StrapiCategoryEntry }> }>("/product-categories", {
     populate: ["coverImage"],
     sort: "displayOrder:asc",
   });

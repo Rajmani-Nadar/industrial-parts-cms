@@ -59,10 +59,7 @@ function normalizeProduct(entry: { id?: number | string; attributes?: StrapiProd
 }
 
 export async function getProducts(): Promise<Product[]> {
-  const response = await fetchAPI<{ data: Array<{ id: number | string; attributes: StrapiProductEntry }> }>("/products", {
-    populate: ["images", "downloads", "product_category", "industry"],
-    sort: "displayOrder:asc",
-  });
+  const response = await fetchAPI<{ data: Array<{ id: number | string; attributes: StrapiProductEntry }> }>('/products');
 
   if (response?.data && Array.isArray(response.data)) {
     const mapped = response.data
@@ -83,10 +80,7 @@ export async function getFeaturedProducts(): Promise<Product[]> {
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
-  const response = await fetchAPI<{ data: Array<{ id: number | string; attributes: StrapiProductEntry }> }>("/products", {
-    populate: ["images", "downloads", "product_category", "industry"],
-    filters: { slug },
-  });
+  const response = await fetchAPI<{ data: Array<{ id: number | string; attributes: StrapiProductEntry }> }>('/products');
 
   if (response?.data && Array.isArray(response.data)) {
     const match = response.data.find((entry) => String(entry?.attributes?.slug ?? "") === slug);

@@ -24,10 +24,7 @@ function normalizeCertification(entry: { id?: number | string; attributes?: Stra
 }
 
 export async function getCertifications(): Promise<Certification[]> {
-  const response = await fetchAPI<{ data: Array<{ id: number | string; attributes: StrapiCertificationEntry }> }>("/certifications", {
-    populate: ["icon"],
-    sort: "displayOrder:asc",
-  });
+  const response = await fetchAPI<{ data: Array<{ id: number | string; attributes: StrapiCertificationEntry }> }>('/certifications');
 
   if (response?.data && Array.isArray(response.data)) {
     const mapped = response.data

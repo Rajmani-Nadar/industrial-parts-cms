@@ -3,34 +3,42 @@ import { fetchAPI } from "@/lib/fetchAPI";
 import type { BlogArticle, StrapiBlogEntry } from "@/types/blog";
 
 const normalizeBlog = (entry: { id?: number | string; attributes?: StrapiBlogEntry }): BlogArticle | null => {
-  const attributes = entry?.attributes;
+  const attributes = entry?.attributes as Record<string, unknown> | undefined;
   if (!attributes) return null;
 
+  const authorValue = attributes.author;
+  const authorName = typeof authorValue === 'string' && authorValue.trim().length > 0
+    ? authorValue
+    : 'Industrial Team';
+
+  const coverImage = attributes.coverImage as { url?: string } | null | undefined;
+  const publishedDate = attributes.publishedDate as string | undefined;
+  const readingTime = attributes.readingTime as number | undefined;
+
   return {
-    slug: attributes.slug ?? "untitled-article",
-    title: attributes.title ?? "Untitled Article",
-    category: attributes.category ?? "Industry News",
-    excerpt: attributes.excerpt ?? "",
-    image: attributes.image?.url ?? "/products/placeholder.jpg",
+    slug: (attributes.slug as string | undefined) ?? 'untitled-article',
+    title: (attributes.title as string | undefined) ?? 'Untitled Article',
+    category: (attributes.category as string | undefined) ?? 'Industry News',
+    excerpt: (attributes.excerpt as string | undefined) ?? '',
+    image: coverImage?.url ?? '/products/placeholder.jpg',
     author: {
-      name: attributes.author?.name ?? "Industrial Team",
-      role: attributes.author?.role ?? "Editor",
-      bio: attributes.author?.bio ?? "",
-      avatar: attributes.author?.avatar?.url ?? "/products/placeholder.jpg",
+      name: authorName,
+      role: 'Editor',
+      bio: '',
+      avatar: '/products/placeholder.jpg',
     },
-    publishedAt: attributes.publishedAt ?? new Date().toISOString(),
-    readTime: attributes.readTime ?? "5 min read",
-    featured: attributes.featured ?? false,
-    tags: Array.isArray(attributes.tags) ? attributes.tags.map(String) : [],
-    toc: Array.isArray(attributes.toc) ? attributes.toc : [],
-    sections: Array.isArray(attributes.sections) ? attributes.sections : [],
+    publishedAt: publishedDate ?? new Date().toISOString(),
+    readTime: typeof readingTime === 'number' ? `${readingTime} min read` : '5 min read',
+    featured: Boolean(attributes.featured),
+    tags: [],
+    toc: [],
+    sections: [],
   };
 };
 
 export async function getBlogs(): Promise<BlogArticle[]> {
-  const response = await fetchAPI<{ data: Array<{ id: number | string; attributes: StrapiBlogEntry }> }>("/articles", {
-    populate: ["coverImage", "author.avatar"],
-    sort: ["publishedAt:desc", "publishedDate:desc"],
+  const response = await fetchAPI<{ data: Array<{ id: number | string; attributes: StrapiBlogEntry }> }>("/blogs", {
+    populate: ['coverImage'],
   });
 
   if (response?.data && Array.isArray(response.data)) {
@@ -57,9 +65,8 @@ export async function getLatestBlogs(): Promise<BlogArticle[]> {
 }
 
 export async function getBlogBySlug(slug: string): Promise<BlogArticle | null> {
-  const response = await fetchAPI<{ data: Array<{ id: number | string; attributes: StrapiBlogEntry }> }>("/articles", {
-    populate: ["coverImage", "author.avatar"],
-    filters: { slug },
+  const response = await fetchAPI<{ data: Array<{ id: number | string; attributes: StrapiBlogEntry }> }>("/blogs", {
+    populate: ['coverImage'],
   });
 
   if (response?.data && Array.isArray(response.data)) {

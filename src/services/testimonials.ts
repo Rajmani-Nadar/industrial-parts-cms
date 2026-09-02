@@ -38,10 +38,7 @@ function normalizeTestimonial(entry: { id?: number | string; attributes?: Strapi
 }
 
 export async function getTestimonials(): Promise<Testimonial[]> {
-  const response = await fetchAPI<{ data: Array<{ id: number | string; attributes: StrapiTestimonialEntry }> }>("/testimonials", {
-    populate: ["avatar"],
-    sort: "displayOrder:asc",
-  });
+  const response = await fetchAPI<{ data: Array<{ id: number | string; attributes: StrapiTestimonialEntry }> }>('/testimonials');
 
   if (response?.data && Array.isArray(response.data)) {
     const mapped = response.data
