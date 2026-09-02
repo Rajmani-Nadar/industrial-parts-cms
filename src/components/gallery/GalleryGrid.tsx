@@ -13,6 +13,11 @@ export function GalleryGrid({ items = GALLERY_ITEMS, filters = GALLERY_FILTERS }
   const [activeFilter, setActiveFilter] = useState<string>("All");
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
+  const filterOptions = useMemo(
+    () => ["All", ...filters.filter((filter) => filter && filter !== "All")].filter((filter, index, allFilters) => allFilters.indexOf(filter) === index),
+    [filters]
+  );
+
   const filteredItems = useMemo(() => {
     if (activeFilter === "All") return items;
     return items.filter((item) => item.category === activeFilter);
@@ -36,11 +41,11 @@ export function GalleryGrid({ items = GALLERY_ITEMS, filters = GALLERY_FILTERS }
   return (
     <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
       <div className="mb-8 flex flex-wrap gap-3">
-        {(["All", ...filters] as const).map((filter) => {
+        {filterOptions.map((filter) => {
           const isActive = activeFilter === filter;
           return (
             <button
-              key={filter}
+              key={`${filter}-${filterOptions.indexOf(filter)}`}
               type="button"
               onClick={() => setActiveFilter(filter)}
               className={`rounded-full border px-4 py-2 text-sm font-semibold transition-all ${

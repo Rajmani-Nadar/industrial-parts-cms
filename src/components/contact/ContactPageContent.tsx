@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Building2, Clock3, Mail, MapPin, MessageSquareText, Phone, ShieldAlert, Warehouse } from "lucide-react";
+import { ArrowRight, Building2, CheckCircle2, Clock3, Mail, MapPin, MessageSquareText, Phone, ShieldAlert, Warehouse } from "lucide-react";
 import { motion } from "framer-motion";
-import type { ContactInfoBlock, ContactMethod } from "@/types/contact";
+import { submitContactEnquiry } from "@/services/contact";
+import type { ContactFormState, ContactInfoBlock, ContactMethod } from "@/types/contact";
 
 const contactMethods: ContactMethod[] = [
   {
@@ -64,7 +66,69 @@ function GlobeIcon({ className }: { className?: string }) {
   return <span className={className}>🌍</span>;
 }
 
+const initialFormState: ContactFormState = {
+  name: "",
+  email: "",
+  company: "",
+  message: "",
+};
+
 export function ContactPageContent() {
+  const [formData, setFormData] = useState<ContactFormState>(initialFormState);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = event.target;
+
+    setFormData((current) => ({
+      ...current,
+      [name]: value,
+    }));
+
+    if (submitStatus) {
+      setSubmitStatus(null);
+    }
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!formData.name || !formData.email || !formData.message) {
+      setSubmitStatus({
+        type: "error",
+        message: "Please complete the required fields before submitting.",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitStatus(null);
+
+    try {
+      await submitContactEnquiry({
+        name: formData.name,
+        companyName: formData.company,
+        email: formData.email,
+        subject: "Website Contact Enquiry",
+        message: formData.message,
+      });
+
+      setFormData(initialFormState);
+      setSubmitStatus({
+        type: "success",
+        message: "Your enquiry has been submitted successfully.",
+      });
+    } catch (error) {
+      setSubmitStatus({
+        type: "error",
+        message: error instanceof Error ? error.message : "Unable to submit your enquiry right now. Please try again later.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="bg-slate-50 pb-20 pt-24 md:pt-28">
       <section className="relative overflow-hidden bg-slate-950">
@@ -175,6 +239,93 @@ export function ContactPageContent() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+          <div className="mb-8">
+            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-600">Send us a message</p>
+            <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 md:text-4xl">Request a quote or technical support</h2>
+          </div>
+
+          <form onSubmit={handleSubmit} noValidate className="grid gap-5 md:grid-cols-2">
+            <label className="text-sm font-medium text-slate-700">
+              Full Name
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-800 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+                placeholder="Your name"
+              />
+            </label>
+
+            <label className="text-sm font-medium text-slate-700">
+              Email Address
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-800 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+                placeholder="you@company.com"
+              />
+            </label>
+
+            <label className="text-sm font-medium text-slate-700 md:col-span-2">
+              Company
+              <input
+                type="text"
+                name="company"
+                value={formData.company}
+                onChange={handleChange}
+                className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-800 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+                placeholder="Your company name"
+              />
+            </label>
+
+            <label className="text-sm font-medium text-slate-700 md:col-span-2">
+              Message
+              <textarea
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
+                required
+                rows={5}
+                className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-800 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+                placeholder="Tell us about your requirement, application, or the product you need help with."
+              />
+            </label>
+
+            {submitStatus && (
+              <div
+                aria-live="polite"
+                className={`md:col-span-2 flex items-center gap-2 rounded-xl border px-4 py-3 text-sm ${
+                  submitStatus.type === "success"
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                    : "border-red-200 bg-red-50 text-red-700"
+                }`}
+                role="alert"
+              >
+                {submitStatus.type === "success" ? <CheckCircle2 className="h-4 w-4" /> : <ShieldAlert className="h-4 w-4" />}
+                {submitStatus.message}
+              </div>
+            )}
+
+            <div className="md:col-span-2 flex justify-end">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-orange-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-orange-400 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isSubmitting ? "Sending..." : "Send Enquiry"}
+              </button>
+            </div>
+          </form>
         </div>
       </section>
 
