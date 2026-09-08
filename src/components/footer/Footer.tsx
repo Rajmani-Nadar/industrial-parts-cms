@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { FOOTER_LINKS, COLORS } from "@/constants";
 import type { CompanySettings } from "@/types/company";
+import { openCookieSettings } from "@/components/cookie/CookieConsent";
 
 /**
  * Footer Component
@@ -180,6 +181,9 @@ export function Footer({ company }: FooterProps) {
               <Link href="/cookies" className="text-gray-400 hover:text-white">
                 Cookie Policy
               </Link>
+              <button type="button" onClick={openCookieSettings} className="text-gray-400 hover:text-white">
+                Cookie Settings
+              </button>
             </div>
           </div>
         </div>

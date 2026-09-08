@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import { Providers } from "@/providers";
-import { Navbar, Footer } from "@/components";
+import { CookieConsent, Navbar, Footer } from "@/components";
+import { PageReveal } from "@/components/shared/PageReveal";
 import { getCompanySettings } from "@/services/company";
 import "./globals.css";
 
@@ -127,8 +128,11 @@ export default async function RootLayout({
       <body className="antialiased bg-white text-gray-900">
         <Providers>
           <Navbar company={company} />
-          <main className="pt-16 md:pt-20 min-h-screen">{children}</main>
+          <main className="pt-16 md:pt-20 min-h-screen">
+            <PageReveal>{children}</PageReveal>
+          </main>
           <Footer company={company} />
+          <CookieConsent />
         </Providers>
       </body>
     </html>

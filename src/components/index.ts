@@ -8,6 +8,7 @@ export { Navbar } from "./navbar/Navbar";
 
 // Footer
 export { Footer } from "./footer/Footer";
+export { CookieConsent } from "./cookie/CookieConsent";
 
 // Shared reusable action components
 export { ContactCTA } from "./shared/ContactCTA";
