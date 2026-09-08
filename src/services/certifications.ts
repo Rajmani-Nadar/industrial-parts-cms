@@ -1,4 +1,5 @@
 import { fetchAPI } from "@/lib/fetchAPI";
+import { getStrapiMediaSource, unwrapStrapiEntry } from "@/lib/strapi-image";
 import type { Certification, StrapiCertificationEntry } from "@/types/certification";
 
 const FALLBACK_CERTIFICATIONS: Certification[] = [
@@ -7,33 +8,35 @@ const FALLBACK_CERTIFICATIONS: Certification[] = [
   { id: "ohsas", name: "OHSAS", description: "Workplace safety", featured: true },
 ];
 
-function normalizeCertification(entry: { id?: number | string; attributes?: StrapiCertificationEntry }): Certification | null {
-  const attributes = entry?.attributes;
-  if (!attributes) {
-    return null;
-  }
+function normalizeCertification(entry: { id?: number | string; attributes?: StrapiCertificationEntry } | StrapiCertificationEntry): Certification | null {
+  const attributes = unwrapStrapiEntry<StrapiCertificationEntry>(entry);
+  if (!attributes) return null;
+
+  const imageUrl = getStrapiMediaSource(attributes.image ?? attributes.icon);
 
   return {
-    id: String(entry.id ?? attributes.name ?? "certification"),
-    name: attributes.name ?? "Certification",
-    description: attributes.description ?? "Industry certification.",
-    icon: attributes.icon?.url,
-    featured: attributes.featured ?? false,
+    id: String((entry as { id?: number | string }).id ?? attributes.slug ?? attributes.title ?? attributes.name ?? "certification"),
+    name: attributes.title ?? attributes.name ?? "Certification",
+    description: attributes.description ?? attributes.issuer ?? "Industry certification.",
+    image: imageUrl,
+    featured: Boolean(attributes.featured),
     displayOrder: attributes.displayOrder ?? 0,
   };
 }
 
 export async function getCertifications(): Promise<Certification[]> {
-  const response = await fetchAPI<{ data: Array<{ id: number | string; attributes: StrapiCertificationEntry }> }>('/certifications');
+  const response = await fetchAPI<{ data: Array<StrapiCertificationEntry | { id?: number | string; attributes?: StrapiCertificationEntry }> } | Array<StrapiCertificationEntry>>('/certifications', {
+    populate: '*',
+    sort: 'displayOrder:asc',
+  });
 
-  if (response?.data && Array.isArray(response.data)) {
-    const mapped = response.data
-      .map((entry) => normalizeCertification(entry))
-      .filter((item): item is Certification => Boolean(item));
+  const entries = response ? (Array.isArray(response) ? response : response.data) : [];
+  const mapped = entries
+    .map((entry) => normalizeCertification(entry as { id?: number | string; attributes?: StrapiCertificationEntry } | StrapiCertificationEntry))
+    .filter((item): item is Certification => Boolean(item));
 
-    if (mapped.length > 0) {
-      return mapped;
-    }
+  if (mapped.length > 0) {
+    return mapped;
   }
 
   return FALLBACK_CERTIFICATIONS;

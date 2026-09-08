@@ -12,6 +12,7 @@ import { COLORS } from "@/constants";
 
 type FeaturedProductCard = {
   id: string;
+  slug?: string;
   name: string;
   category: string;
   shortDescription: string;
@@ -36,6 +37,11 @@ export function FeaturedProductsSection({ products = FEATURED_PRODUCTS }: Featur
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
   };
+
+  const getProductSlug = (product: FeaturedProductCard) =>
+    product.slug ??
+    product.id ??
+    product.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
   return (
     <section className="py-20 px-4 bg-gray-50">
@@ -67,80 +73,81 @@ export function FeaturedProductsSection({ products = FEATURED_PRODUCTS }: Featur
           viewport={{ once: true }}
         >
           {products.map((product) => (
-            <motion.div
-              key={product.id}
-              className="group bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all"
-              variants={cardVariants}
-            >
-              {/* Product Image Area */}
-              <div
-                className="relative h-48 overflow-hidden bg-gradient-to-br"
-                style={{
-                  backgroundImage: `linear-gradient(135deg, ${COLORS.navy[100]} 0%, ${COLORS.orange[50]} 100%)`,
-                }}
+            <Link key={product.id} href={`/products/${getProductSlug(product)}`} className="block h-full">
+              <motion.div
+                className="group bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all h-full"
+                variants={cardVariants}
               >
-                <motion.div
-                  className="absolute inset-0 flex items-center justify-center text-6xl"
-                  whileHover={{ scale: 1.1 }}
+                {/* Product Image Area */}
+                <div
+                  className="relative h-48 overflow-hidden bg-gradient-to-br"
+                  style={{
+                    backgroundImage: `linear-gradient(135deg, ${COLORS.navy[100]} 0%, ${COLORS.orange[50]} 100%)`,
+                  }}
                 >
-                  ⚙️
-                </motion.div>
-
-                {/* Badge */}
-                {product.rating && (
-                  <div
-                    className="absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-semibold text-white flex items-center space-x-1"
-                    style={{ backgroundColor: COLORS.orange[500] }}
+                  <motion.div
+                    className="absolute inset-0 flex items-center justify-center text-6xl"
+                    whileHover={{ scale: 1.1 }}
                   >
-                    <span>⭐ {product.rating}</span>
-                  </div>
-                )}
-              </div>
+                    ⚙️
+                  </motion.div>
 
-              {/* Product Info */}
-              <div className="p-6">
-                <span
-                  className="text-xs font-semibold uppercase tracking-wider"
-                  style={{ color: COLORS.orange[500] }}
-                >
-                  {product.category}
-                </span>
-
-                <h3
-                  className="text-xl font-bold mt-2 mb-3 group-hover:underline transition-all"
-                  style={{ color: COLORS.navy[500] }}
-                >
-                  {product.name}
-                </h3>
-
-                <p className="text-gray-600 text-sm mb-4">
-                  {product.shortDescription}
-                </p>
-
-                {/* Features */}
-                <div className="space-y-2 mb-6">
-                  {product.features.slice(0, 3).map((feature, idx) => (
-                    <div key={idx} className="flex items-center space-x-2 text-sm text-gray-600">
-                      <div
-                        className="w-1.5 h-1.5 rounded-full"
-                        style={{ backgroundColor: COLORS.orange[500] }}
-                      />
-                      <span>{feature}</span>
+                  {/* Badge */}
+                  {product.rating && (
+                    <div
+                      className="absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-semibold text-white flex items-center space-x-1"
+                      style={{ backgroundColor: COLORS.orange[500] }}
+                    >
+                      <span>⭐ {product.rating}</span>
                     </div>
-                  ))}
+                  )}
                 </div>
 
-                {/* CTA Button */}
-                <motion.button
-                  className="w-full py-2 rounded-lg font-semibold text-white transition-all"
-                  style={{ backgroundColor: COLORS.orange[500] }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  View Details
-                </motion.button>
-              </div>
-            </motion.div>
+                {/* Product Info */}
+                <div className="p-6">
+                  <span
+                    className="text-xs font-semibold uppercase tracking-wider"
+                    style={{ color: COLORS.orange[500] }}
+                  >
+                    {product.category}
+                  </span>
+
+                  <h3
+                    className="text-xl font-bold mt-2 mb-3 group-hover:underline transition-all"
+                    style={{ color: COLORS.navy[500] }}
+                  >
+                    {product.name}
+                  </h3>
+
+                  <p className="text-gray-600 text-sm mb-4">
+                    {product.shortDescription}
+                  </p>
+
+                  {/* Features */}
+                  <div className="space-y-2 mb-6">
+                    {product.features.slice(0, 3).map((feature, idx) => (
+                      <div key={idx} className="flex items-center space-x-2 text-sm text-gray-600">
+                        <div
+                          className="w-1.5 h-1.5 rounded-full"
+                          style={{ backgroundColor: COLORS.orange[500] }}
+                        />
+                        <span>{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* CTA Button */}
+                  <motion.span
+                    className="block w-full py-2 rounded-lg font-semibold text-white text-center transition-all"
+                    style={{ backgroundColor: COLORS.orange[500] }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    View Details
+                  </motion.span>
+                </div>
+              </motion.div>
+            </Link>
           ))}
         </motion.div>
 

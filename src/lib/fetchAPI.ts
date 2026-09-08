@@ -62,8 +62,9 @@ export async function fetchAPI<T>(endpoint: string, options: FetchAPIOptions = {
     return null;
   }
 
-  const baseUrl = strapiUrl.replace(/\/$/, "");
-  const url = new URL(`/api${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`, `${baseUrl}/`);
+  const normalizedEndpoint = endpoint.startsWith("/api/") ? endpoint.slice(4) : endpoint;
+  const baseUrl = strapiUrl.replace(/\/$/, "").replace(/\/api$/, "");
+  const url = new URL(`/api${normalizedEndpoint.startsWith("/") ? normalizedEndpoint : `/${normalizedEndpoint}`}`, `${baseUrl}/`);
   const query = buildQueryString(options);
 
   if (query) {
@@ -96,7 +97,8 @@ export async function fetchAPI<T>(endpoint: string, options: FetchAPIOptions = {
     });
 
     if (!response.ok) {
-      console.warn(`Strapi request failed for ${endpoint}: ${response.status} ${response.statusText}`);
+      const errorBody = await response.text().catch(() => "");
+      console.warn(`Strapi request failed for ${url.toString()}: ${response.status} ${response.statusText}`, errorBody ? JSON.parse(errorBody) : null);
       return null;
     }
 

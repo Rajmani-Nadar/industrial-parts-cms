@@ -26,7 +26,12 @@ export function DownloadsPageContent({ documents = DOWNLOADS, categories = ["All
 
       return matchesCategory && matchesSearch;
     });
-  }, [activeCategory, searchTerm]);
+  }, [activeCategory, searchTerm, documents]);
+
+  const featuredCatalogues = useMemo(
+    () => documents.filter((document) => document.category.toLowerCase().includes("catalog")).slice(0, 4),
+    [documents],
+  );
 
   return (
     <div className="bg-slate-50 pb-20">
@@ -78,39 +83,14 @@ export function DownloadsPageContent({ documents = DOWNLOADS, categories = ["All
       <section className="mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8">
         <div className="mb-6 text-2xl font-black text-slate-900">Featured catalogues</div>
         <div className="grid gap-5 lg:grid-cols-2">
-          {[
-            {
-              title: "Bleeder Brake Catalogue",
-              description: "Premium braking components and service solutions for heavy-duty fleets.",
-              image: "https://images.unsplash.com/photo-1581092921461-4a7e8a9f84f0?auto=format&fit=crop&w=1200&q=80",
-              href: "/downloads/bleeder-brake-catalogue.pdf",
-            },
-            {
-              title: "Generator Accessories Catalogue",
-              description: "Control, protection, and generator support accessories for industrial uptime.",
-              image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80",
-              href: "/downloads/generator-accessories-catalogue.pdf",
-            },
-            {
-              title: "ATS Controller Catalogue",
-              description: "Transfer switch systems for mission-critical industrial operations.",
-              image: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80",
-              href: "/downloads/ats-controller-catalogue.pdf",
-            },
-            {
-              title: "Diesel Engine Components Catalogue",
-              description: "OEM-grade replacement parts engineered for performance and reliability.",
-              image: "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=1200&q=80",
-              href: "/downloads/diesel-engine-components-catalogue.pdf",
-            },
-          ].map((item) => (
+          {featuredCatalogues.map((item) => (
             <a
-              key={item.title}
+              key={item.id}
               href={item.href}
               className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-1 hover:border-orange-200 hover:shadow-xl"
             >
-              <div className="relative h-56 overflow-hidden">
-                <img src={item.image} alt={item.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+              <div className="relative flex h-56 items-center justify-center overflow-hidden bg-slate-900 text-orange-300">
+                <span className="text-5xl font-black tracking-[0.2em]">PDF</span>
               </div>
               <div className="p-6">
                 <div className="text-xs font-semibold uppercase tracking-[0.22em] text-orange-600">Featured catalogue</div>

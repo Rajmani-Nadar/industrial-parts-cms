@@ -3,6 +3,7 @@ import Image from "next/image";
 import { ArrowDownToLine, BadgeCheck, ShieldCheck, Sparkles, Wrench, Award, FileText, Factory } from "lucide-react";
 import { Breadcrumbs } from "@/components/products/Breadcrumbs";
 import { generatePageMetadata } from "@/lib/seo";
+import { getCertifications } from "@/services/certifications";
 import { SectionHeading } from "@/components/about/Shared";
 import { CertificationCard } from "@/components/certifications/CertificationCard";
 
@@ -87,7 +88,17 @@ const warrantyCards = [
   { title: "Support Timeline", description: "Maintenance planning and issue resolution with team-based follow-up throughout the warranty period." },
 ];
 
-export default function CertificationsPage() {
+export default async function CertificationsPage() {
+  const certifications = await getCertifications();
+  const certificationCards = certifications.length > 0
+    ? certifications.map((certification) => ({
+        title: certification.name,
+        description: certification.description,
+        image: certification.image,
+        icon: "iso",
+      }))
+    : standards;
+
   return (
     <div className="bg-slate-50">
       <section className="relative overflow-hidden bg-slate-950">
@@ -112,7 +123,7 @@ export default function CertificationsPage() {
           description="Every product line is aligned with manufacturing quality, documentation, and support standards."
         />
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-5">
-          {standards.map((item) => (
+          {certificationCards.map((item) => (
             <CertificationCard key={item.title} item={item} />
           ))}
         </div>

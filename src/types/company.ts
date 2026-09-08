@@ -50,6 +50,10 @@ export interface StrapiCompanyEntry {
   email?: string;
   address?: string;
   workingHours?: string;
+  facebook?: string;
+  instagram?: string;
+  linkedin?: string;
+  youtube?: string;
   socialLinks?: Array<{ platform?: string; url?: string }>;
   heroCtaText?: string;
   footerCopyright?: string;

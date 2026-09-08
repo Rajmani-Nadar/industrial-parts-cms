@@ -1,5 +1,5 @@
 ﻿import { fetchAPI } from "@/lib/fetchAPI";
-import { resolveMediaUrl } from "@/lib/utils";
+import { getStrapiMediaUrl, unwrapStrapiEntry } from "@/lib/strapi-image";
 import type { CompanySettings, StrapiCompanyEntry } from "@/types/company";
 
 const FALLBACK_COMPANY: CompanySettings = {
@@ -21,33 +21,34 @@ const FALLBACK_COMPANY: CompanySettings = {
 };
 
 export async function getCompanySettings(): Promise<CompanySettings> {
-  const response = await fetchAPI<{ data: { id: number | string; attributes: StrapiCompanyEntry } | null }>('/company-setting', {
+  const response = await fetchAPI<{ data: StrapiCompanyEntry | { attributes: StrapiCompanyEntry } | null }>('/company-setting', {
     populate: "*",
     revalidate: 3600,
   });
 
-  if (response?.data) {
-  const entry = response.data.attributes;
-
+  const entry = unwrapStrapiEntry<StrapiCompanyEntry>(response?.data ?? null);
   if (entry) {
-      return {
-        id: String(entry.id ?? 'company-settings'),
-        companyName: entry.companyName ?? FALLBACK_COMPANY.companyName,
-        logo: resolveMediaUrl(entry.logo?.url, FALLBACK_COMPANY.logo),
-        phone: entry.phone ?? FALLBACK_COMPANY.phone,
-        whatsappNumber: entry.whatsappNumber ?? FALLBACK_COMPANY.whatsappNumber,
-        email: entry.email ?? FALLBACK_COMPANY.email,
-        address: entry.address ?? FALLBACK_COMPANY.address,
-        workingHours: entry.workingHours ?? FALLBACK_COMPANY.workingHours,
-        socialLinks: (entry.socialLinks ?? FALLBACK_COMPANY.socialLinks).map((link) => ({
-          platform: link.platform ?? 'Social',
-          url: link.url ?? '#',
-        })),
-        heroCtaText: entry.heroCtaText ?? FALLBACK_COMPANY.heroCtaText,
-        footerCopyright: entry.footerCopyright ?? FALLBACK_COMPANY.footerCopyright,
-        navbarLogo: resolveMediaUrl(entry.navbarLogo?.url, FALLBACK_COMPANY.navbarLogo),
-      };
-    }
+    const socialLinks = [
+      entry.linkedin ? { platform: "LinkedIn", url: entry.linkedin } : null,
+      entry.instagram ? { platform: "Instagram", url: entry.instagram } : null,
+      entry.facebook ? { platform: "Facebook", url: entry.facebook } : null,
+      entry.youtube ? { platform: "YouTube", url: entry.youtube } : null,
+    ].filter((link): link is { platform: string; url: string } => Boolean(link));
+
+    return {
+      id: String(entry.id ?? 'company-settings'),
+      companyName: entry.companyName ?? FALLBACK_COMPANY.companyName,
+      logo: getStrapiMediaUrl(entry.logo, FALLBACK_COMPANY.logo),
+      phone: entry.phone ?? FALLBACK_COMPANY.phone,
+      whatsappNumber: entry.whatsappNumber ?? FALLBACK_COMPANY.whatsappNumber,
+      email: entry.email ?? FALLBACK_COMPANY.email,
+      address: entry.address ?? FALLBACK_COMPANY.address,
+      workingHours: entry.workingHours ?? FALLBACK_COMPANY.workingHours,
+      socialLinks: socialLinks.length > 0 ? socialLinks : FALLBACK_COMPANY.socialLinks,
+      heroCtaText: entry.heroCtaText ?? FALLBACK_COMPANY.heroCtaText,
+      footerCopyright: entry.footerCopyright ?? FALLBACK_COMPANY.footerCopyright,
+      navbarLogo: getStrapiMediaUrl(entry.navbarLogo ?? entry.logo, FALLBACK_COMPANY.navbarLogo),
+    };
   }
 
   return FALLBACK_COMPANY;

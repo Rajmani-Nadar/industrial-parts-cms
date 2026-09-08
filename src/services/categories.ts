@@ -1,4 +1,5 @@
 import { fetchAPI } from "@/lib/fetchAPI";
+import { getStrapiMediaUrl, unwrapStrapiEntry } from "@/lib/strapi-image";
 import type { Category, StrapiCategoryEntry } from "@/types/category";
 
 const FALLBACK_CATEGORIES: Category[] = [
@@ -32,32 +33,32 @@ const FALLBACK_CATEGORIES: Category[] = [
 ];
 
 export async function getCategories(): Promise<Category[]> {
-  const response = await fetchAPI<{ data: Array<{ id: number | string; attributes: StrapiCategoryEntry }> }>("/product-categories", {
-    populate: ["coverImage"],
+  const response = await fetchAPI<{ data: Array<StrapiCategoryEntry | { id?: number | string; attributes?: StrapiCategoryEntry }> } | Array<StrapiCategoryEntry>>("/product-categories", {
+    populate: "*",
     sort: "displayOrder:asc",
   });
 
-  if (response?.data && Array.isArray(response.data)) {
-    const mapped = response.data
-      .map((entry) => {
-        const attributes = entry?.attributes;
-        if (!attributes) return null;
+  const entries = response ? (Array.isArray(response) ? response : response.data) : [];
+  const mapped = entries
+    .map((entry) => {
+      const record = unwrapStrapiEntry<StrapiCategoryEntry>(entry);
 
-        return {
-          id: String(entry.id ?? attributes.slug ?? attributes.name ?? "category"),
-          slug: attributes.slug ?? String(attributes.name ?? "category").toLowerCase().replace(/\s+/g, "-"),
-          name: attributes.name ?? "Category",
-          description: attributes.description ?? "Industrial component category.",
-          icon: attributes.icon ?? "Cpu",
-          coverImage: attributes.coverImage?.url ?? "/products/placeholder.jpg",
-          displayOrder: Number(attributes.displayOrder ?? 0),
-        } satisfies Category;
-      })
-      .filter((item): item is Category => Boolean(item));
+      if (!record) return null;
 
-    if (mapped.length > 0) {
-      return [...mapped].sort((a, b) => a.displayOrder - b.displayOrder);
-    }
+      return {
+        id: String((entry as { id?: number | string })?.id ?? record.slug ?? record.name ?? "category"),
+        slug: record.slug ?? String(record.name ?? "category").toLowerCase().replace(/\s+/g, "-"),
+        name: record.name ?? "Category",
+        description: record.description ?? "Industrial component category.",
+        icon: typeof record.icon === "string" ? record.icon : "Cpu",
+        coverImage: getStrapiMediaUrl(record.coverImage, "/logo.png"),
+        displayOrder: Number(record.displayOrder ?? 0),
+      } satisfies Category;
+    })
+    .filter((item): item is Category => Boolean(item));
+
+  if (mapped.length > 0) {
+    return [...mapped].sort((a, b) => a.displayOrder - b.displayOrder);
   }
 
   return FALLBACK_CATEGORIES;

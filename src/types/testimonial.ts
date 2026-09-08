@@ -19,4 +19,13 @@ export interface StrapiTestimonialEntry {
     alternativeText?: string;
   } | null;
   rating?: number;
+  designation?: string;
+  companyName?: string;
+  review?: string;
+  photo?: {
+    url?: string;
+    alternativeText?: string;
+  } | null;
+  featured?: boolean;
+  displayOrder?: number;
 }

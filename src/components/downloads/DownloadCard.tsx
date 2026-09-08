@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { ArrowDownToLine, FileText } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -25,6 +24,8 @@ export function DownloadCard({
   description,
   href,
 }: DownloadCardProps) {
+  const hasFile = Boolean(href) && !href.endsWith("/downloads/placeholder.pdf");
+
   return (
     <motion.article
       whileHover={{ y: -6 }}
@@ -67,13 +68,22 @@ export function DownloadCard({
         </div>
       </div>
 
-      <Link
-        href={href}
-        className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-orange-600"
-      >
-        <ArrowDownToLine className="h-4 w-4" />
-        Download PDF
-      </Link>
+      {hasFile ? (
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-orange-600"
+        >
+          <ArrowDownToLine className="h-4 w-4" />
+          Download PDF
+        </a>
+      ) : (
+        <span className="mt-6 inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-slate-200 px-4 py-3 text-sm font-semibold text-slate-500">
+          <ArrowDownToLine className="h-4 w-4" />
+          File unavailable
+        </span>
+      )}
     </motion.article>
   );
 }

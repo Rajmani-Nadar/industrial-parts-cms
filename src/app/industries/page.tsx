@@ -48,7 +48,7 @@ export default async function IndustriesPage() {
     image: industry.coverImage,
     products: industry.products.length > 0 ? industry.products : ["Industrial Support", "Critical Components"],
     applications: industry.products.length > 0 ? industry.products : ["Mission-critical operations", "Heavy-duty uptime"],
-    href: `/products?category=${encodeURIComponent(industry.slug)}`,
+    href: `/products?application=${encodeURIComponent(industry.name)}`,
   }));
 
   return (

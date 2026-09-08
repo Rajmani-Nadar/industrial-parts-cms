@@ -5,21 +5,12 @@
 
 "use client";
 
-import { motion } from "framer-motion";
 import { CLIENT_LOGOS } from "@/constants/homepage";
 import { COLORS } from "@/constants";
+import { useState } from "react";
 
 export function TrustedBySection() {
-  const marqueeVariants = {
-    animate: {
-      x: [-1000, -3000],
-      transition: {
-        duration: 25,
-        repeat: Infinity,
-        ease: "linear" as const,
-      },
-    },
-  };
+  const [isPaused, setIsPaused] = useState(false);
 
   return (
     <section className="py-12 md:py-16 bg-white border-y border-gray-200">
@@ -33,12 +24,11 @@ export function TrustedBySection() {
 
         {/* Marquee Container */}
         <div className="overflow-hidden">
-          <motion.div
-            className="flex space-x-12"
-            variants={marqueeVariants}
-            animate="animate"
-            onHoverStart={() => undefined}
-            onHoverEnd={() => undefined}
+          <div
+            className="trusted-marquee-track flex w-max space-x-12"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+            style={{ animationPlayState: isPaused ? "paused" : "running" }}
           >
             {/* Original logos */}
             {CLIENT_LOGOS.map((logo, idx) => (
@@ -73,7 +63,7 @@ export function TrustedBySection() {
                 </div>
               </div>
             ))}
-          </motion.div>
+          </div>
         </div>
 
         {/* Hover pause notice */}

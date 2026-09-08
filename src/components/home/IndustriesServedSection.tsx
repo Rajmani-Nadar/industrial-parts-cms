@@ -5,6 +5,7 @@
 
 "use client";
 
+import Link from "next/link";
 import type { ComponentType } from "react";
 import { motion } from "framer-motion";
 import * as Icons from "lucide-react";
@@ -13,6 +14,7 @@ import { COLORS } from "@/constants";
 
 type IndustryCard = {
   id: string;
+  slug?: string;
   name: string;
   icon: string;
   description: string;
@@ -41,6 +43,11 @@ export function IndustriesServedSection({ industries = INDUSTRIES_SERVED }: Indu
     const Icon = Icons[iconName as keyof typeof Icons] as ComponentType<{ className?: string }> | undefined;
     return Icon ? <Icon className="w-12 h-12" /> : null;
   };
+
+  const getIndustrySlug = (industry: IndustryCard) =>
+    industry.slug ??
+    industry.id ??
+    industry.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
   return (
     <section className="py-20 px-4 bg-white">
@@ -72,67 +79,68 @@ export function IndustriesServedSection({ industries = INDUSTRIES_SERVED }: Indu
           viewport={{ once: true }}
         >
           {industries.map((industry) => (
-            <motion.div
-              key={industry.id}
-              className="group relative rounded-xl overflow-hidden h-48 cursor-pointer"
-              variants={cardVariants}
-              whileHover="hover"
-            >
-              {/* Background */}
-              <div
-                className="absolute inset-0"
-                style={{
-                  backgroundImage: `linear-gradient(135deg, ${COLORS.navy[500]} 0%, ${COLORS.steel[500]} 100%)`,
-                }}
-              />
-
-              {/* Overlay pattern */}
-              <div
-                className="absolute inset-0"
-                style={{
-                  backgroundImage:
-                    "url('data:image/svg+xml,<svg width=\"40\" height=\"40\" viewBox=\"0 0 40 40\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"20\" cy=\"20\" r=\"2\" fill=\"%23ffffff\" opacity=\"0.1\"/></svg>')",
-                }}
-              />
-
-              {/* Content */}
-              <div className="absolute inset-0 p-6 flex flex-col items-start justify-between">
-                <motion.div
-                  className="text-white"
-                  whileHover={{ scale: 1.2 }}
-                >
-                  {getIcon(industry.icon)}
-                </motion.div>
-
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-2">
-                    {industry.name}
-                  </h3>
-                  <p className="text-gray-200 text-sm">
-                    {industry.description}
-                  </p>
-                </div>
-              </div>
-
-              {/* Hover overlay with CTA */}
+            <Link key={industry.id} href={`/industries/${getIndustrySlug(industry)}`} className="block h-full">
               <motion.div
-                className="absolute inset-0 flex items-center justify-center"
-                style={{
-                  backgroundColor: COLORS.orange[500] + "f0",
-                }}
-                initial={{ opacity: 0 }}
-                whileHover={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
+                className="group relative rounded-xl overflow-hidden h-48 cursor-pointer"
+                variants={cardVariants}
+                whileHover="hover"
               >
-                <motion.button
-                  className="px-6 py-2 rounded-lg font-semibold text-white border-2 border-white"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                {/* Background */}
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    backgroundImage: `linear-gradient(135deg, ${COLORS.navy[500]} 0%, ${COLORS.steel[500]} 100%)`,
+                  }}
+                />
+
+                {/* Overlay pattern */}
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    backgroundImage:
+                      "url('data:image/svg+xml,<svg width=\"40\" height=\"40\" viewBox=\"0 0 40 40\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"20\" cy=\"20\" r=\"2\" fill=\"%23ffffff\" opacity=\"0.1\"/></svg>')",
+                  }}
+                />
+
+                {/* Content */}
+                <div className="absolute inset-0 p-6 flex flex-col items-start justify-between">
+                  <motion.div
+                    className="text-white"
+                    whileHover={{ scale: 1.2 }}
+                  >
+                    {getIcon(industry.icon)}
+                  </motion.div>
+
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-2">
+                      {industry.name}
+                    </h3>
+                    <p className="text-gray-200 text-sm">
+                      {industry.description}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Hover overlay with CTA */}
+                <motion.div
+                  className="absolute inset-0 flex items-center justify-center"
+                  style={{
+                    backgroundColor: COLORS.orange[500] + "f0",
+                  }}
+                  initial={{ opacity: 0 }}
+                  whileHover={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
                 >
-                  Learn More
-                </motion.button>
+                  <motion.span
+                    className="px-6 py-2 rounded-lg font-semibold text-white border-2 border-white inline-block"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Learn More
+                  </motion.span>
+                </motion.div>
               </motion.div>
-            </motion.div>
+            </Link>
           ))}
         </motion.div>
       </div>

@@ -48,6 +48,7 @@ export interface Product {
   brand: string;
   name: string;
   category: string;
+  categorySlug?: string;
   shortDescription: string;
   description: string;
   summary: string;
@@ -94,6 +95,29 @@ export interface StrapiProductEntry extends Record<string, unknown> {
     url?: string;
   }>;
   tags?: string[];
+  featured?: boolean;
+  displayOrder?: number;
+  product_category?: {
+    id?: number | string;
+    name?: string;
+    slug?: string;
+    data?: {
+      id?: number | string;
+      attributes?: {
+        name?: string;
+        slug?: string;
+      };
+    } | null;
+  };
+  industry?: {
+    data?: {
+      id?: number | string;
+      attributes?: {
+        name?: string;
+        slug?: string;
+      };
+    } | null;
+  };
 }
 
 export type ProductSortOption = "newest" | "name" | "category" | "brand" | "application";

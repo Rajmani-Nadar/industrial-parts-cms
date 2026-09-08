@@ -79,7 +79,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
               <div className="mt-6 flex items-center justify-between gap-4 border-b border-slate-200 pb-6">
                 <div className="flex items-center gap-4">
                   <div className="relative h-12 w-12 overflow-hidden rounded-full border border-slate-200">
-                    <Image src={article.author.avatar ?? "/products/placeholder.jpg"} alt={article.author.name} fill className="object-cover" sizes="48px" />
+                    <Image src={article.author.avatar ?? "/logo.png"} alt={article.author.name} fill className="object-cover" sizes="48px" />
                   </div>
                   <div>
                     <div className="font-semibold text-slate-900">{article.author.name}</div>

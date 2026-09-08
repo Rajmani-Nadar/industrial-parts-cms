@@ -6,10 +6,12 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import * as Icons from "lucide-react";
 import { Menu, X, ChevronDown, ArrowRight } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, resolveMediaUrl } from "@/lib/utils";
 import { MAIN_NAV_ITEMS, MEGA_MENU } from "@/constants";
 import { COLORS } from "@/constants";
 import { PRODUCTS } from "@/data/products";
+import { getCategories } from "@/services/categories";
+import { getIndustries } from "@/services/industries";
 import type { CompanySettings } from "@/types/company";
 
 /**
@@ -31,6 +33,8 @@ export function Navbar({ company }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
+  const [cmsCategoryItems, setCmsCategoryItems] = useState<Array<{ label: string; href: string; description: string; icon?: string }>>([]);
+  const [cmsIndustryItems, setCmsIndustryItems] = useState<Array<{ label: string; href: string; description: string; icon?: string }>>([]);
   const navRef = useRef<HTMLDivElement>(null);
 
   const isNavItemActive = (href: string) => {
@@ -60,6 +64,35 @@ export function Navbar({ company }: NavbarProps) {
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    Promise.all([getCategories(), getIndustries()]).then(([categories, industries]) => {
+      if (!isMounted) return;
+
+      setCmsCategoryItems(
+        categories.map((category) => ({
+          label: category.name,
+          href: `/products?category=${encodeURIComponent(category.slug)}`,
+          description: category.description,
+          icon: category.icon,
+        })),
+      );
+      setCmsIndustryItems(
+        industries.slice(0, 4).map((industry) => ({
+          label: industry.name,
+          href: `/industries/${encodeURIComponent(industry.slug)}`,
+          description: industry.description,
+          icon: industry.icon,
+        })),
+      );
+    });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -128,6 +161,9 @@ export function Navbar({ company }: NavbarProps) {
     if (!MEGA_MENU[menuKey as keyof typeof MEGA_MENU]) return null;
 
     const menu = MEGA_MENU[menuKey as keyof typeof MEGA_MENU];
+    const productMenuItems = menuKey === "products" && cmsCategoryItems.length > 0 ? cmsCategoryItems : menu.items;
+    const solutionMenuItems = menuKey === "solutions" && cmsIndustryItems.length > 0 ? cmsIndustryItems : menu.items;
+    const menuItems = menuKey === "products" ? productMenuItems : solutionMenuItems;
 
     if (menuKey === "products") {
       return (
@@ -146,7 +182,7 @@ export function Navbar({ company }: NavbarProps) {
                 Product Categories
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
-                {menu.items.map((item) => {
+                {productMenuItems.map((item) => {
                   const IconComponent = item.icon
                     ? (Icons[item.icon as keyof typeof Icons] as
                         | ((props: { className?: string }) => React.ReactElement)
@@ -190,7 +226,7 @@ export function Navbar({ company }: NavbarProps) {
                   >
                     <div className="h-16 w-16 overflow-hidden rounded-lg bg-slate-100">
                       <img
-                        src={product.images[0]?.url ?? "/products/placeholder.jpg"}
+                        src={resolveMediaUrl(product.images[0]?.url, "/logo.png")}
                         alt={product.name}
                         className="h-full w-full object-cover"
                       />
@@ -223,7 +259,7 @@ export function Navbar({ company }: NavbarProps) {
           onMouseLeave={() => setActiveMegaMenu(null)}
         >
           <div className="grid gap-3 sm:grid-cols-2">
-            {menu.items.map((item) => {
+            {menuItems.map((item) => {
               const IconComponent = item.icon
                 ? (Icons[item.icon as keyof typeof Icons] as
                     | ((props: { className?: string }) => React.ReactElement)

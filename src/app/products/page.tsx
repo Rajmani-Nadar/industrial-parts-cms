@@ -6,13 +6,17 @@ import { Filter, Search, SlidersHorizontal, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { RFQButton } from "@/components/products/RFQButton";
 import { EmptyState } from "@/components/products/EmptyState";
+import { getCategories as getCmsCategories } from "@/services/categories";
 import type { Product } from "@/types/product";
-import { filterProducts, getApplications, getAvailabilityOptions, getCategories, getEngineBrands } from "@/lib/product-utils";
+import { filterProducts, getAvailabilityOptions } from "@/lib/product-utils";
+import { getStrapiMediaUrl } from "@/lib/strapi-image";
 
-export default function ProductsPage({ initialProducts }: { initialProducts?: Product[] }) {
+type CategoryOption = { slug: string; name: string };
+
+export default function ProductsPage({ initialProducts = [] }: { initialProducts?: Product[] }) {
   return (
     <Suspense fallback={<ProductsPageFallback />}>
-      <ProductsPageContent initialProducts={initialProducts ?? []} />
+      <ProductsPageContent initialProducts={initialProducts} />
     </Suspense>
   );
 }
@@ -37,11 +41,6 @@ const sortOptions = [
 
 type SortValue = (typeof sortOptions)[number]["value"];
 
-const categoryOptions = getCategories();
-const brandOptions = getEngineBrands();
-const applicationOptions = getApplications();
-const availabilityOptions = getAvailabilityOptions() as readonly string[];
-
 const slugifyCategory = (value: string) =>
   value
     .trim()
@@ -50,35 +49,72 @@ const slugifyCategory = (value: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
-const resolveCategoryFromQuery = (value: string | null, categoryChoices: readonly string[]) => {
-  if (!value) return "All";
-
-  const normalized = decodeURIComponent(value).trim();
-  const match = categoryChoices.find((category) => slugifyCategory(category) === normalized.toLowerCase());
-  return match ?? "All";
-};
-
 function ProductsPageContent({ initialProducts }: { initialProducts: Product[] }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const productCatalog = initialProducts.length > 0 ? initialProducts : [];
-  const categoryOptions = useMemo(() => ["All", ...new Set(productCatalog.map((product) => product.category))], [productCatalog]);
+  const [productCatalog, setProductCatalog] = useState<Product[]>(initialProducts);
+  const [cmsCategories, setCmsCategories] = useState<CategoryOption[]>([]);
+  const [search, setSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedBrand, setSelectedBrand] = useState("All");
+  const [selectedApplication, setSelectedApplication] = useState("All");
+  const [selectedAvailability, setSelectedAvailability] = useState("All");
+  const [sortBy, setSortBy] = useState<SortValue>("newest");
+  const [isQueryInitialized, setIsQueryInitialized] = useState(false);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const categoryOptions = useMemo(
+    () => cmsCategories.length > 0
+      ? cmsCategories
+      : [...new Set(productCatalog.map((product) => ({ slug: product.categorySlug ?? slugifyCategory(product.category), name: product.category })))],
+    [cmsCategories, productCatalog],
+  );
   const brandOptions = useMemo(() => ["All", ...new Set(productCatalog.map((product) => product.brand))], [productCatalog]);
   const applicationOptions = useMemo(() => ["All", ...new Set(productCatalog.flatMap((product) => product.applications))], [productCatalog]);
   const availabilityOptions = useMemo(() => ["All", ...getAvailabilityOptions()], [productCatalog]);
 
-  const [search, setSearch] = useState(searchParams.get("q") ?? "");
-  const [selectedCategory, setSelectedCategory] = useState(() => resolveCategoryFromQuery(searchParams.get("category"), categoryOptions));
-  const [selectedBrand, setSelectedBrand] = useState(searchParams.get("brand") ?? "All");
-  const [selectedApplication, setSelectedApplication] = useState(searchParams.get("application") ?? "All");
-  const [selectedAvailability, setSelectedAvailability] = useState(searchParams.get("availability") ?? "All");
-  const [sortBy, setSortBy] = useState<SortValue>((searchParams.get("sort") as SortValue) ?? "newest");
-  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  useEffect(() => {
+    queueMicrotask(() => {
+      setSearch(searchParams.get("q") ?? "");
+      setSelectedCategory(searchParams.get("category") ?? "All");
+      setSelectedBrand(searchParams.get("brand") ?? "All");
+      setSelectedApplication(searchParams.get("application") ?? "All");
+      setSelectedAvailability(searchParams.get("availability") ?? "All");
+      setSortBy((searchParams.get("sort") as SortValue) ?? "newest");
+      setIsQueryInitialized(true);
+    });
+  }, [searchParams]);
 
   useEffect(() => {
+    let isMounted = true;
+
+    const loadProducts = async () => {
+      const [{ getProducts }, categories] = await Promise.all([
+        import("@/services/products"),
+        getCmsCategories(),
+      ]);
+      const products = await getProducts();
+      if (isMounted) {
+        setProductCatalog(products);
+        const categoryOptions = categories.map((category) => ({ slug: category.slug, name: category.name }));
+        setCmsCategories(categoryOptions);
+      }
+    };
+
+    if (initialProducts.length === 0) {
+      loadProducts();
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [initialProducts]);
+
+  useEffect(() => {
+    if (!isQueryInitialized) return;
+
     const params = new URLSearchParams();
     if (search) params.set("q", search.trim());
-    if (selectedCategory !== "All") params.set("category", slugifyCategory(selectedCategory));
+    if (selectedCategory !== "All") params.set("category", selectedCategory);
     if (selectedBrand !== "All") params.set("brand", selectedBrand);
     if (selectedApplication !== "All") params.set("application", selectedApplication);
     if (selectedAvailability !== "All") params.set("availability", selectedAvailability);
@@ -86,7 +122,7 @@ function ProductsPageContent({ initialProducts }: { initialProducts: Product[] }
 
     const next = params.toString();
     router.replace(next ? `?${next}` : "", { scroll: false });
-  }, [router, search, selectedCategory, selectedBrand, selectedApplication, selectedAvailability, sortBy]);
+  }, [isQueryInitialized, router, search, selectedCategory, selectedBrand, selectedApplication, selectedAvailability, sortBy]);
 
   const filteredProducts = useMemo(
     () =>
@@ -292,33 +328,35 @@ function ProductFilters({
   onApplicationChange: (value: string) => void;
   onAvailabilityChange: (value: string) => void;
   onReset: () => void;
-  categoryOptions: readonly string[];
+  categoryOptions: readonly CategoryOption[];
   brandOptions: readonly string[];
   applicationOptions: readonly string[];
   availabilityOptions: readonly string[];
 }) {
-  const filterGroups = [
+  const filterGroups: Array<{ title: string; items: Array<{ value: string; label: string }>; value: string; onChange: (value: string) => void }> = [
     {
       title: "Product Category",
-      items: [...new Set(["All", ...categoryOptions])],
+      items: [{ value: "All", label: "All" }, ...categoryOptions
+        .filter((item, index, all) => all.findIndex((candidate) => candidate.slug === item.slug) === index)
+        .map((item) => ({ value: item.slug, label: item.name }))],
       value: selectedCategory,
       onChange: onCategoryChange,
     },
     {
       title: "Engine Brand",
-      items: [...new Set(["All", ...brandOptions])],
+      items: [...new Set(["All", ...brandOptions])].map((item) => ({ value: item, label: item })),
       value: selectedBrand,
       onChange: onBrandChange,
     },
     {
       title: "Application",
-      items: [...new Set(["All", ...applicationOptions])],
+      items: [...new Set(["All", ...applicationOptions])].map((item) => ({ value: item, label: item })),
       value: selectedApplication,
       onChange: onApplicationChange,
     },
     {
       title: "Availability",
-      items: [...new Set(["All", ...availabilityOptions])],
+      items: [...new Set(["All", ...availabilityOptions])].map((item) => ({ value: item, label: item })),
       value: selectedAvailability,
       onChange: onAvailabilityChange,
     },
@@ -341,16 +379,16 @@ function ProductFilters({
           <div key={group.title}>
             <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-700">{group.title}</h4>
             <div className="space-y-2">
-              {group.items.map((item, index) => (
-                <label key={`${group.title}-${item}-${index}`} className="flex cursor-pointer items-center gap-2 text-sm text-slate-600">
+                {group.items.map((item, index) => (
+                <label key={`${group.title}-${item.value}-${index}`} className="flex cursor-pointer items-center gap-2 text-sm text-slate-600">
                   <input
                     type="radio"
                     name={group.title}
-                    checked={group.value === item}
-                    onChange={() => group.onChange(item)}
+                    checked={group.value === item.value}
+                    onChange={() => group.onChange(item.value)}
                     className="h-4 w-4 accent-orange-500"
                   />
-                  <span>{item}</span>
+                  <span>{item.label}</span>
                 </label>
               ))}
             </div>
@@ -373,7 +411,7 @@ function ProductCard({ product }: { product: Product }) {
     >
       <div className="relative overflow-hidden rounded-t-2xl">
         <img
-          src={product.images[0]?.url ?? product.images[0]?.url ?? "/products/placeholder.jpg"}
+          src={getStrapiMediaUrl(product.images[0]?.url, "/logo.png")}
           alt={product.images[0]?.alt ?? product.name}
           className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"

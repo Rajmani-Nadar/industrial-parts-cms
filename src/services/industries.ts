@@ -1,4 +1,5 @@
 import { fetchAPI } from "@/lib/fetchAPI";
+import { resolveMediaUrl } from "@/lib/utils";
 
 export interface IndustryRecord {
   id: string;
@@ -45,33 +46,46 @@ const FALLBACK_INDUSTRIES: IndustryRecord[] = [
 ];
 
 export async function getIndustries(): Promise<IndustryRecord[]> {
-  const response = await fetchAPI<{ data: Array<{ id: number | string; attributes: Record<string, unknown> }> }>("/industries", {
-    populate: ["icon", "coverImage", "products"],
+  const response = await fetchAPI<{ data: Array<Record<string, unknown> | { id?: number | string; attributes?: Record<string, unknown> }> } | Array<Record<string, unknown>>>("/industries", {
+    populate: "*",
     sort: "displayOrder:asc",
   });
 
-  if (response?.data && Array.isArray(response.data)) {
-    const mapped = response.data
-      .map((entry) => {
-        const attributes = entry?.attributes as Record<string, unknown> | undefined;
-        if (!attributes) return null;
+  const entries = response ? (Array.isArray(response) ? response : response.data) : [];
+  const mapped = entries
+    .map((entry) => {
+      const attributes = entry && typeof entry === "object" && "attributes" in entry && entry.attributes && typeof entry.attributes === "object"
+        ? (entry.attributes as Record<string, unknown>)
+        : (entry as Record<string, unknown>);
+      if (!attributes) return null;
 
-        return {
-          id: String(entry.id ?? attributes.slug ?? attributes.name ?? "industry"),
-          slug: String(attributes.slug ?? String(attributes.name ?? "industry").toLowerCase().replace(/\s+/g, "-")),
-          name: String(attributes.name ?? "Industry"),
-          description: String(attributes.description ?? "Industrial solutions."),
-          icon: String((attributes.icon as string | undefined) ?? "Factory"),
-          coverImage: String(((attributes.coverImage as Record<string, unknown> | undefined)?.url as string | undefined) ?? "/products/placeholder.jpg"),
-          products: Array.isArray(attributes.products) ? attributes.products.map((product) => String(product)) : [],
-          displayOrder: Number(attributes.displayOrder ?? 0),
-        } satisfies IndustryRecord;
-      })
-      .filter((item): item is IndustryRecord => Boolean(item));
+      const iconValue = attributes.icon as { url?: string } | string | null | undefined;
+      const coverImageValue = attributes.coverImage as { url?: string } | null | undefined;
+      const products = Array.isArray(attributes.products)
+        ? attributes.products.map((product) => {
+            if (!product || typeof product !== "object") return String(product ?? "");
+            const productRecord = product as Record<string, unknown>;
+            if (typeof productRecord.name === "string") return productRecord.name;
+            if (typeof productRecord.title === "string") return productRecord.title;
+            return String(productRecord.slug ?? "");
+          }).filter(Boolean)
+        : [];
 
-    if (mapped.length > 0) {
-      return [...mapped].sort((a, b) => a.displayOrder - b.displayOrder);
-    }
+      return {
+        id: String((entry as { id?: number | string })?.id ?? attributes.slug ?? attributes.name ?? "industry"),
+        slug: String(attributes.slug ?? String(attributes.name ?? "industry").toLowerCase().replace(/\s+/g, "-")),
+        name: String(attributes.name ?? "Industry"),
+        description: String(attributes.description ?? "Industrial solutions."),
+        icon: typeof iconValue === "string" ? iconValue : iconValue?.url ?? "Factory",
+        coverImage: resolveMediaUrl(coverImageValue?.url, "/logo.png"),
+        products,
+        displayOrder: Number(attributes.displayOrder ?? 0),
+      } satisfies IndustryRecord;
+    })
+    .filter((item): item is IndustryRecord => Boolean(item));
+
+  if (mapped.length > 0) {
+    return [...mapped].sort((a, b) => a.displayOrder - b.displayOrder);
   }
 
   return FALLBACK_INDUSTRIES;

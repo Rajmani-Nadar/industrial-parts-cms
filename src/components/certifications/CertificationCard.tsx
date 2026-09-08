@@ -7,6 +7,7 @@ import type { ComponentType } from "react";
 export type CertificationCardItem = {
   title: string;
   description: string;
+  image?: string;
   icon: string;
 };
 
@@ -31,8 +32,8 @@ export function CertificationCard({ item }: { item: CertificationCardItem }) {
       whileHover={{ y: -4 }}
       className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm"
     >
-      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-100 text-orange-600">
-        <Icon className="h-7 w-7" />
+      <div className="mb-4 flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl bg-orange-100 text-orange-600">
+        {item.image ? <img src={item.image} alt="" className="h-full w-full object-cover" /> : <Icon className="h-7 w-7" />}
       </div>
       <h3 className="text-xl font-bold text-slate-900">{item.title}</h3>
       <p className="mt-3 text-sm leading-6 text-slate-600">{item.description}</p>

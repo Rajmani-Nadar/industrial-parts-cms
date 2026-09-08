@@ -7,7 +7,7 @@ export type StrapiEnvConfig = {
 const DEFAULT_STRAPI_URL = "http://localhost:1337";
 
 export function getStrapiEnv(): StrapiEnvConfig {
-  const strapiUrl = (process.env.NEXT_PUBLIC_STRAPI_URL ?? DEFAULT_STRAPI_URL).trim();
+  const strapiUrl = (process.env.NEXT_PUBLIC_STRAPI_URL ?? DEFAULT_STRAPI_URL).trim().replace(/\/api$/, "");
   const apiToken = (process.env.STRAPI_API_TOKEN ?? "").trim();
 
   return {

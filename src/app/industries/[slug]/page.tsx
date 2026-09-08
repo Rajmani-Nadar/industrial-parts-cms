@@ -7,6 +7,7 @@ import { Breadcrumbs } from "@/components/products/Breadcrumbs";
 import { generatePageMetadata } from "@/lib/seo";
 import { getIndustryBySlug } from "@/services/industries";
 import { getProducts } from "@/services/products";
+import { getStrapiMediaUrl } from "@/lib/strapi-image";
 
 export async function generateStaticParams() {
   const industries = await import("@/services/industries").then(({ getIndustries }) => getIndustries());
@@ -64,7 +65,7 @@ export default async function IndustryDetailPage({ params }: { params: Promise<{
         <section className="mt-8 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
           <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
             <div className="relative min-h-[360px]">
-              <Image src={industry.coverImage || "/products/placeholder.jpg"} alt={industry.name} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 56vw" />
+              <Image src={industry.coverImage || "/logo.png"} alt={industry.name} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 56vw" />
               <div className="absolute inset-0 bg-gradient-to-r from-slate-950/70 to-slate-900/20" />
               <div className="absolute inset-0 p-8 md:p-12">
                 <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-white/90 backdrop-blur-sm">
@@ -122,7 +123,7 @@ export default async function IndustryDetailPage({ params }: { params: Promise<{
               relatedProducts.map((product) => (
                 <Link key={product.id} href={`/products/${product.slug}`} className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-transform hover:-translate-y-1 hover:shadow-md">
                   <div className="relative h-44 overflow-hidden">
-                    <img src={product.images[0]?.url ?? "/products/placeholder.jpg"} alt={product.name} className="h-full w-full object-cover" />
+                    <img src={getStrapiMediaUrl(product.images[0]?.url, "/logo.png")} alt={product.name} className="h-full w-full object-cover" />
                   </div>
                   <div className="p-5">
                     <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-sky-700">{product.category}</div>

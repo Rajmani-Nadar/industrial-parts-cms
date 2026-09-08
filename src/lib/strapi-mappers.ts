@@ -6,6 +6,7 @@ import type {
   ProductImage,
   ProductSpecification,
 } from "@/types/product";
+import { resolveMediaUrl } from "@/lib/utils";
 
 type StrapiMedia = Partial<{ id?: string; url?: string; alternativeText?: string; width?: number; height?: number }>;
 type StrapiRecord = Record<string, unknown>;
@@ -14,7 +15,7 @@ export function mapStrapiImage(
   media?: StrapiMedia,
   fallbackAlt = "Product image",
 ): ProductImage {
-  const url = media?.url ?? "/products/placeholder.jpg";
+  const url = resolveMediaUrl(media?.url, "/logo.png");
 
   return {
     id: media?.id ?? `${fallbackAlt.toLowerCase().replace(/\s+/g, "-")}-image`,
@@ -48,7 +49,7 @@ export function mapStrapiProduct(input: StrapiRecord, fallbackName = "Industrial
     ? input.downloads.map((download) => ({
         name: String((download as StrapiRecord)?.name ?? "Document"),
         type: ((download as StrapiRecord)?.type ?? "PDF") as ProductDownload["type"],
-        url: String((download as StrapiRecord)?.url ?? "/downloads/placeholder.pdf"),
+        url: resolveMediaUrl(String((download as StrapiRecord)?.url ?? ""), "/downloads/placeholder.pdf"),
       }))
     : [];
 
@@ -67,6 +68,7 @@ export function mapStrapiProduct(input: StrapiRecord, fallbackName = "Industrial
     brand: String(input.brand ?? "Industrial"),
     name: String(input.name ?? fallbackName),
     category: String(input.category ?? "Diesel Engine Spare Parts"),
+    categorySlug: String(input.categorySlug ?? input.category ?? "Diesel Engine Spare Parts").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""),
     shortDescription: String(input.shortDescription ?? input.summary ?? "Industrial heavy-duty component."),
     description: String(input.description ?? input.summary ?? "Industrial heavy-duty component."),
     summary: String(input.summary ?? input.shortDescription ?? "Industrial heavy-duty component."),

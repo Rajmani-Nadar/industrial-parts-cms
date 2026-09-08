@@ -6,6 +6,7 @@ import { APPLICATION_CARDS } from "@/data/products";
 import { Breadcrumbs } from "@/components/products/Breadcrumbs";
 import { RFQButton } from "@/components/products/RFQButton";
 import { getProductBySlug, getProducts } from "@/services/products";
+import { getStrapiMediaUrl } from "@/lib/strapi-image";
 
 const featureIcons = [ShieldCheck, Wrench, Truck, Star];
 
@@ -45,13 +46,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       url: `https://industrialparts.example/products/${product.slug}`,
       siteName: "Industrial Components",
       type: "website",
-      images: [{ url: product.images[0]?.url ?? "/products/placeholder.jpg", width: 1200, height: 630, alt: product.name }],
+      images: [{ url: getStrapiMediaUrl(product.images[0]?.url, "/logo.png"), width: 1200, height: 630, alt: product.name }],
     },
     twitter: {
       card: "summary_large_image",
       title: `${product.name} | Industrial Components`,
       description: product.shortDescription,
-      images: [product.images[0]?.url ?? "/products/placeholder.jpg"],
+      images: [getStrapiMediaUrl(product.images[0]?.url, "/logo.png")],
     },
   };
 }
@@ -86,12 +87,12 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               <div className="mb-4 grid gap-3 md:grid-cols-4">
                 {product.images.map((image, index) => (
                   <div key={image.id} className={`overflow-hidden rounded-xl border ${index === 0 ? "border-orange-400" : "border-slate-200"}`}>
-                    <img src={image.url} alt={image.alt} className="h-24 w-full object-cover" loading="lazy" />
+                    <img src={getStrapiMediaUrl(image.url, "/logo.png")} alt={image.alt} className="h-24 w-full object-cover" loading="lazy" />
                   </div>
                 ))}
               </div>
               <div className="overflow-hidden rounded-2xl bg-slate-100">
-                <img src={product.images[0]?.url ?? "/products/placeholder.jpg"} alt={product.images[0]?.alt ?? product.name} className="h-[480px] w-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
+                <img src={getStrapiMediaUrl(product.images[0]?.url, "/logo.png")} alt={product.images[0]?.alt ?? product.name} className="h-[480px] w-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
               </div>
             </div>
           </section>
@@ -242,7 +243,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             {relatedProducts.map((item) => (
               <Link key={item.slug} href={`/products/${item.slug}`} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition-transform hover:-translate-y-1 hover:shadow-md">
                 <div className="overflow-hidden rounded-xl">
-                  <img src={item.images[0]?.url ?? "/products/placeholder.jpg"} alt={item.images[0]?.alt ?? item.name} className="h-36 w-full object-cover" loading="lazy" />
+                  <img src={item.images[0]?.url ?? "/logo.png"} alt={item.images[0]?.alt ?? item.name} className="h-36 w-full object-cover" loading="lazy" />
                 </div>
                 <div className="mt-4">
                   <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-sky-700">{item.category}</div>

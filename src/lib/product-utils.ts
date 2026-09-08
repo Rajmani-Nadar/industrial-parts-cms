@@ -63,7 +63,8 @@ export function filterProducts(filters: Partial<ProductFilters>, productList: Pr
       product.category.toLowerCase().includes(normalizedSearch) ||
       product.compatibleEngines.some((engine) => engine.toLowerCase().includes(normalizedSearch));
 
-    const matchesCategory = selectedCategory === "All" || product.category === selectedCategory;
+    const selectedCategorySlug = selectedCategory.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    const matchesCategory = selectedCategory === "All" || (product.categorySlug ?? product.category.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")) === selectedCategorySlug;
     const matchesBrand = selectedBrand === "All" || product.brand === selectedBrand;
     const matchesApplication =
       selectedApplication === "All" || product.applications.includes(selectedApplication);

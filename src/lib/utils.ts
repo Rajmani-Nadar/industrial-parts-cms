@@ -10,7 +10,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function resolveMediaUrl(value?: string | null, fallback = "/products/placeholder.jpg"): string {
+export function resolveMediaUrl(value?: string | null, fallback = "/logo.png"): string {
   if (!value || value.trim() === "") {
     return fallback;
   }
@@ -19,7 +19,7 @@ export function resolveMediaUrl(value?: string | null, fallback = "/products/pla
     return value;
   }
 
-  if (value.startsWith("/")) {
+  if (value.startsWith("/") && !value.startsWith("/uploads/")) {
     return value;
   }
 

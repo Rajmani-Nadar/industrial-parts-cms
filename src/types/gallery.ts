@@ -22,10 +22,24 @@ export interface StrapiGalleryEntry {
   title?: string;
   category?: string;
   location?: string;
+  description?: string;
   image?: {
     url?: string;
     alternativeText?: string;
     width?: number;
     height?: number;
   } | null;
+  images?: {
+    url?: string;
+    alternativeText?: string;
+    width?: number;
+    height?: number;
+  } | Array<{
+    url?: string;
+    alternativeText?: string;
+    width?: number;
+    height?: number;
+  }> | null;
+  featured?: boolean;
+  displayOrder?: number;
 }
