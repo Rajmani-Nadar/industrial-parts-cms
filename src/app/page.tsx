@@ -48,6 +48,7 @@ export default async function Home() {
     company: companySettings,
     industries: featuredIndustries.length > 0 ? featuredIndustries.map((industry) => ({
       id: industry.id,
+      slug: industry.slug,
       name: industry.name,
       icon: industry.icon,
       description: industry.description,
@@ -61,6 +62,7 @@ export default async function Home() {
     })) : PRODUCT_CATEGORIES_HOMEPAGE,
     products: featuredProducts.length > 0 ? featuredProducts.map((product) => ({
       id: product.id,
+      slug: product.slug,
       name: product.name,
       category: product.category,
       shortDescription: product.shortDescription,
